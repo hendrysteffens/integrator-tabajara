@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="9fccfa5e-13f4-4bd5-98bb-5980b931f247" name="Default Changelist" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="mavenHome" value="$APPLICATION_HOME_DIR$/plugins/maven/lib/maven3" />
+      </MavenGeneralSettings>
+    </option>
+  </component>
+  <component name="ProjectId" id="1i97rX8rsnhTDSsSdrbTtn7KUpA" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="project.structure.last.edited" value="Project" />
+    <property name="project.structure.proportion" value="0.15" />
+    <property name="project.structure.side.proportion" value="0.2" />
+    <property name="show.unlinked.gradle.project.popup" value="true" />
+  </component>
+  <component name="RunManager">
+    <configuration name="AppKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
+      <module name="integrator-generator.main" />
+      <option name="VM_PARAMETERS" />
+      <option name="PROGRAM_PARAMETERS" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="MAIN_CLASS_NAME" value="integrator.generator.AppKt" />
+      <option name="WORKING_DIRECTORY" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Kotlin.AppKt" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9fccfa5e-13f4-4bd5-98bb-5980b931f247" name="Default Changelist" comment="" />
+      <created>1601308153307</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1601308153307</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="2394" y="117" width="1024" height="852" key="#Project_Structure" timestamp="1601395876552">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2394" y="117" width="1024" height="852" key="#Project_Structure/0.27.1920.1053/1920.0.1920.1080@1920.0.1920.1080" timestamp="1601395876552" />
+    <state x="2669" y="284" key="#xdebugger.evaluate" timestamp="1601393592434">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2669" y="284" key="#xdebugger.evaluate/0.27.1920.1053/1920.0.1920.1080@1920.0.1920.1080" timestamp="1601393592434" />
+    <state width="500" height="506" key="DebuggerActiveHint" timestamp="1601393597371">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="500" height="506" key="DebuggerActiveHint/0.27.1920.1053/1920.0.1920.1080@1920.0.1920.1080" timestamp="1601393597371" />
+    <state width="1835" height="284" key="GridCell.Tab.0.bottom" timestamp="1601396082754">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1874" height="284" key="GridCell.Tab.0.bottom/0.27.1920.1053/1920.0.1920.1080@0.27.1920.1053" timestamp="1601386526178" />
+    <state width="1835" height="284" key="GridCell.Tab.0.bottom/0.27.1920.1053/1920.0.1920.1080@1920.0.1920.1080" timestamp="1601396082754" />
+    <state width="1835" height="284" key="GridCell.Tab.0.center" timestamp="1601396082754">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1874" height="284" key="GridCell.Tab.0.center/0.27.1920.1053/1920.0.1920.1080@0.27.1920.1053" timestamp="1601386526178" />
+    <state width="1835" height="284" key="GridCell.Tab.0.center/0.27.1920.1053/1920.0.1920.1080@1920.0.1920.1080" timestamp="1601396082754" />
+    <state width="1835" height="284" key="GridCell.Tab.0.left" timestamp="1601396082754">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1874" height="284" key="GridCell.Tab.0.left/0.27.1920.1053/1920.0.1920.1080@0.27.1920.1053" timestamp="1601386526178" />
+    <state width="1835" height="284" key="GridCell.Tab.0.left/0.27.1920.1053/1920.0.1920.1080@1920.0.1920.1080" timestamp="1601396082754" />
+    <state width="1835" height="284" key="GridCell.Tab.0.right" timestamp="1601396082754">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1874" height="284" key="GridCell.Tab.0.right/0.27.1920.1053/1920.0.1920.1080@0.27.1920.1053" timestamp="1601386526178" />
+    <state width="1835" height="284" key="GridCell.Tab.0.right/0.27.1920.1053/1920.0.1920.1080@1920.0.1920.1080" timestamp="1601396082754" />
+    <state width="1812" height="351" key="GridCell.Tab.1.bottom" timestamp="1601393610428">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1812" height="351" key="GridCell.Tab.1.bottom/0.27.1920.1053/1920.0.1920.1080@1920.0.1920.1080" timestamp="1601393610428" />
+    <state width="1812" height="351" key="GridCell.Tab.1.center" timestamp="1601393610428">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1812" height="351" key="GridCell.Tab.1.center/0.27.1920.1053/1920.0.1920.1080@1920.0.1920.1080" timestamp="1601393610428" />
+    <state width="1812" height="351" key="GridCell.Tab.1.left" timestamp="1601393610428">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1812" height="351" key="GridCell.Tab.1.left/0.27.1920.1053/1920.0.1920.1080@1920.0.1920.1080" timestamp="1601393610428" />
+    <state width="1812" height="351" key="GridCell.Tab.1.right" timestamp="1601393610428">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state width="1812" height="351" key="GridCell.Tab.1.right/0.27.1920.1053/1920.0.1920.1080@1920.0.1920.1080" timestamp="1601393610428" />
+    <state x="2394" y="117" width="1024" height="852" key="SettingsEditor" timestamp="1601396076157">
+      <screen x="1920" y="0" width="1920" height="1080" />
+    </state>
+    <state x="2394" y="117" width="1024" height="852" key="SettingsEditor/0.27.1920.1053/1920.0.1920.1080@1920.0.1920.1080" timestamp="1601396076157" />
+  </component>
+</project>
