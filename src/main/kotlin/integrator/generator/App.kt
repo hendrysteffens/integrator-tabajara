@@ -35,5 +35,7 @@ class App {
 }
 
 fun main(args: Array<String>) {
-    ExtractSdlData.extractData(App().entity)
+    ExtractSdlData.extractData(App().entity).second.forEach {
+        fields -> println(fields)
+    }
 }
