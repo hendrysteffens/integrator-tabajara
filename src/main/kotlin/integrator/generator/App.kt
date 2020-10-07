@@ -4,6 +4,8 @@
 package integrator.generator
 
 import integrator.generator.sdl.ExtractSdlData
+import java.io.FileInputStream
+import java.util.*
 
 class App {
     val entity: String
@@ -11,7 +13,7 @@ class App {
             return "\"Evento da folha de pagamento\"\n" +
                     "        custom public entity wagetype {\n" +
                     "            \"Id do evento\"\n" +
-                    "            id : string\n" +
+                    "            id : string ( 32 )\n" +
                     "            \"Relacionamento com tabelas de eventos\"\n" +
                     "            wageTypeTable : wageTypeTable\n" +
                     "            \"Código do evento\"\n" +
@@ -32,10 +34,20 @@ class App {
                     "            syndicate : string ( 32 )?\n" +
                     "        }"
         }
+
+    fun getResouce() :String{
+        return this.javaClass.classLoader.getResource("generator.properties").file;
+    }
+
 }
 
 fun main(args: Array<String>) {
+    val props = Properties()
+    props.load(FileInputStream(App().getResouce()))
+    props.getProperty("sdl.path")
+    println(props.getProperty("sdl.path"))
     ExtractSdlData.extractData(App().entity).second.forEach {
         fields -> println(fields)
     }
 }
+

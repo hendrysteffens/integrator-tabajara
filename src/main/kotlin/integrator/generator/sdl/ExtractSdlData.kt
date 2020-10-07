@@ -1,11 +1,9 @@
 package integrator.generator.sdl;
 
-class ExtractSdlData {
+import integrator.generator.dto.Field
+import integrator.generator.dto.ValidationType
 
-    enum class ValidationType {
-        STRING_SIZE
-    }
-    data class Field(val name: String, val type: String, val validations :Map<ValidationType,String>?)
+class ExtractSdlData {
 
 
     companion object {
@@ -24,19 +22,29 @@ class ExtractSdlData {
         }
 
         private fun processFieldType(name: String, fieldType: String): Field {
-            if (fieldType.contains("string")){
+            if (fieldType.contains("string")) {
                 return processFieldStringType(name, fieldType);
             }
-            return Field(name, fieldType, null);
+            var isRequired = verifyRequiredField(fieldType)
+            return Field(name, fieldType.replace("?", ""), if (isRequired) mapOf(ValidationType.REQUIRED to null) else null);
         }
 
         private fun processFieldStringType(name: String, fieldType: String): Field {
             var match = "(?<=\\(\\s).*(?=\\s\\))".toRegex().find(fieldType)
-
-            if(match?.value != null){
-                return  Field(name.trim(), fieldType.split(" ")[1].trim(), mapOf(ValidationType.STRING_SIZE to match?.value))
+            var isRequired = verifyRequiredField(fieldType)
+            if (match?.value != null) {
+                var validations:  MutableMap<ValidationType, String?> = mutableMapOf(ValidationType.STRING_SIZE to match?.value)
+                if (isRequired)
+                    validations[ValidationType.REQUIRED] = null
+                return Field(name.trim(), fieldType.split(" ")[1].trim().replace("?", ""), validations)
             }
-            return  Field(name.trim(), fieldType.trim(), null)
+
+
+            return Field(name.trim(), fieldType.trim(), if (isRequired) mapOf(ValidationType.REQUIRED to null) else null)
+        }
+
+        private fun verifyRequiredField(fieldType: String): Boolean {
+            return !fieldType.contains("?")
         }
 
     }
