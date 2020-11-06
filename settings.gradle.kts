@@ -8,3 +8,6 @@
  */
 
 rootProject.name = "integrator-generator"
+
+//include (":barber")
+//project(":barber").projectDir = File("dep/barber")

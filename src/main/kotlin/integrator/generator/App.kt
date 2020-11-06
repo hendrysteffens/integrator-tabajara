@@ -3,7 +3,9 @@
  */
 package integrator.generator
 
+import integrator.generator.dto.Field
 import integrator.generator.sdl.ExtractSdlData
+import integrator.generator.template.DtoTemplate
 import java.io.FileInputStream
 import java.util.*
 
@@ -49,5 +51,12 @@ fun main(args: Array<String>) {
     ExtractSdlData.extractData(App().entity).second.forEach {
         fields -> println(fields)
     }
+    generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString);
+
+}
+
+fun generateDto(extractData: Pair<String?, List<Field>>, templateString: String) {
+
+
 }
 
