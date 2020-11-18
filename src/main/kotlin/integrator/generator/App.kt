@@ -3,16 +3,22 @@
  */
 package integrator.generator
 
+import com.beust.klaxon.Klaxon
 import integrator.generator.dto.Field
 import integrator.generator.sdl.ExtractSdlData
+import integrator.generator.tbs.TbsDataExtractor
 import integrator.generator.template.DtoTemplate
+import integrator.generator.util.HttpUtils
 import java.io.FileInputStream
+import java.lang.Exception
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.*
 
 class App {
     val entity: String
         get() {
-            return "\"Evento da folha de pagamento\"\n" +
+            return "\"Evento da folha de pagamento (R034EVT)\"\n" +
                     "        custom public entity wagetype {\n" +
                     "            \"Id do evento\"\n" +
                     "            id : string ( 32 )\n" +
@@ -40,20 +46,25 @@ class App {
     fun getResouce() :String{
         return this.javaClass.classLoader.getResource("generator.properties").file;
     }
-
 }
 
 fun main(args: Array<String>) {
+
     val props = Properties()
     props.load(FileInputStream(App().getResouce()))
     props.getProperty("sdl.path")
     println(props.getProperty("sdl.path"))
+
     ExtractSdlData.extractData(App().entity).second.forEach {
         fields -> println(fields)
     }
     generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString);
 
+    TbsDataExtractor.extractTbsData(props, "R034FUN")
+
 }
+
+
 
 fun generateDto(extractData: Pair<String?, List<Field>>, templateString: String) {
 
