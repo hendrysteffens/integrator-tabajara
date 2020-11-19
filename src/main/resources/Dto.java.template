@@ -2,15 +2,17 @@ package com.senior.hcm.integration.workflows.{{EntityName}};
 
 import com.senior.hcm.integration.annotations.TranslationClass;
 import com.senior.hcm.integration.annotations.TranslationField;
-import com.senior.hcm.integration.workflows.builder.BaseTranslationWorkflowDto;
+import com.senior.hcm.integration.workflows.builder.BaseFullWorkflowDto;
 import lombok.Builder;
 import lombok.Getter;
 
 import javax.validation.constraints.*;
 
+{{Imports}}
+
 @Builder
 @Getter
-public class {{EntityName}}Dto extends BaseTranslationWorkflowDto {
+public class {{EntityName}}Dto extends BaseFullWorkflowDto {
 
     {{FieldsAndValidations}}
 

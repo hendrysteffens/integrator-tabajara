@@ -3,16 +3,13 @@
  */
 package integrator.generator
 
-import com.beust.klaxon.Klaxon
 import integrator.generator.dto.Field
+import integrator.generator.dto.ValidationTypeTemplate
+import integrator.generator.dto.ValidationType
 import integrator.generator.sdl.ExtractSdlData
 import integrator.generator.tbs.TbsDataExtractor
 import integrator.generator.template.DtoTemplate
-import integrator.generator.util.HttpUtils
 import java.io.FileInputStream
-import java.lang.Exception
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.*
 
 class App {
@@ -58,7 +55,7 @@ fun main(args: Array<String>) {
     ExtractSdlData.extractData(App().entity).second.forEach {
         fields -> println(fields)
     }
-    generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString);
+    println(generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString));
 
     TbsDataExtractor.extractTbsData(props, "R034FUN")
 
@@ -66,8 +63,33 @@ fun main(args: Array<String>) {
 
 
 
-fun generateDto(extractData: Pair<String?, List<Field>>, templateString: String) {
+fun generateDto(extractData: Pair<String?, List<Field>>, templateString: String): String {
+    var bodyTemplate = "";
+    extractData.second.forEach { field ->
+        field.validations?.forEach {
+            when(it.key) {
+                ValidationType.REQUIRED -> {
+                    bodyTemplate += getValidationStringWithField(ValidationTypeTemplate.NOT_EMPTY.value, field.name)
+                    bodyTemplate += getValidationStringWithField(ValidationTypeTemplate.NOT_NULL.value, field.name);
+                }
+                ValidationType.MAX -> {
+                    bodyTemplate += getValidationStringWithField(ValidationTypeTemplate.MAX.value, field.name)
+                }
+                ValidationType.MIN -> {
+                    bodyTemplate += getValidationStringWithField(ValidationTypeTemplate.MIN.value, field.name)
+                }
+                ValidationType.DATE -> {
+                    bodyTemplate += getValidationStringWithField(ValidationTypeTemplate.LOCAL_DATE_RAGE.value, field.name)
+                }
+            }
+        }
+        var type = field.type.trim().substring(0,1).toUpperCase().plus(field.type.trim().substring(1));
 
-
+        bodyTemplate += "private "+type+" "+field.name+"\n\n";
+    }
+    return bodyTemplate;
 }
 
+fun getValidationStringWithField(rowValidator: String, field: String): String {
+    return rowValidator.replace("{{field}}", field)
+}

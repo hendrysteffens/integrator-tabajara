@@ -10,7 +10,7 @@ object TbsDataExtractor {
 
     fun extractTbsData(props: Properties, tableName: String): G5TableDefinition? {
         // TODO
-        val g5Fields = getG5Fields(props, tableName)
+        //val g5Fields = getG5Fields(props, tableName)
 
         return null
     }

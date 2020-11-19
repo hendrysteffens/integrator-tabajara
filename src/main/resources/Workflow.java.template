@@ -1,0 +1,31 @@
+package com.senior.hcm.integration.workflows.{{EntityName}};
+
+import com.senior.hcm.integration.annotations.TranslationClass;
+import com.senior.hcm.integration.annotations.TranslationField;
+import com.senior.hcm.integration.workflows.builder.BaseFullWorkflowDto;
+import lombok.Builder;
+import lombok.Getter;
+
+import javax.validation.constraints.*;
+
+{{Imports}}
+
+@Builder
+@Getter
+public class {{EntityName}}Workflow extends BaseSyncWorkflow<{{EntityName}}Dto> {
+
+    private final DatabaseMappingWrapper mapping;
+
+
+    public HistoricalBankAccountWorkflow() {
+        this(SystemPropertiesWrapper.getInstance(),
+                MetaMigrationCacheRepository.getInstance(),
+                WorkflowInformation.getInstance(),
+                SyncCacheRepository.getInstance(),
+                G5DatabaseWrapper.getInstance(),
+                DatabaseMappingWrapper.getInstance());
+    }
+
+    {{FieldsAndValidations}}
+
+}

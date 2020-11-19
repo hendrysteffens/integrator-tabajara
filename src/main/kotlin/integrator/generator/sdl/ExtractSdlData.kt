@@ -18,11 +18,19 @@ object ExtractSdlData {
         return Pair(entityName, fields)
     }
 
-    private fun processFieldType(name: String, fieldType: String): Field {
+    private fun processFieldType(name: String, type: String): Field {
+        var fieldType = type;
         if (fieldType.contains("string")) {
             return processFieldStringType(name, fieldType);
         }
         var isRequired = verifyRequiredField(fieldType)
+        if(!fieldType.contains("string") &&
+                !fieldType.contains("double") &&
+                !fieldType.contains("date") &&
+                !fieldType.contains("integer")) {
+            fieldType = "string"
+        }
+        if (fieldType.contains("date")) fieldType = "LocalDate";
         return Field(name, fieldType.replace("?", ""), if (isRequired) mapOf(ValidationType.REQUIRED to null) else null);
     }
 
