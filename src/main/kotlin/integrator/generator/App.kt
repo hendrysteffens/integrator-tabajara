@@ -9,6 +9,7 @@ import integrator.generator.dto.ValidationType
 import integrator.generator.sdl.ExtractSdlData
 import integrator.generator.tbs.TbsDataExtractor
 import integrator.generator.template.DtoTemplate
+import integrator.generator.util.*
 import java.io.FileInputStream
 import java.util.*
 
@@ -58,7 +59,7 @@ fun main(args: Array<String>) {
     println(generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString));
 
     TbsDataExtractor.extractTbsData(props, "R034FUN")
-
+    FileGenerator().createFileByNameAndText("test.java", "teste")
 }
 
 
@@ -82,6 +83,9 @@ fun generateDto(extractData: Pair<String?, List<Field>>, templateString: String)
                     bodyTemplate += getValidationStringWithField(ValidationTypeTemplate.LOCAL_DATE_RAGE.value, field.name)
                 }
             }
+        }
+        if(field.type.equals("LocalDate")){
+            field.type = "String";
         }
         var type = field.type.trim().substring(0,1).toUpperCase().plus(field.type.trim().substring(1));
 
