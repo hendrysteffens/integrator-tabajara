@@ -44,7 +44,7 @@ object TbsDataExtractor {
         if (line.trim().startsWith("COLUMN")) {
             ignore = false
             columnName = line.substringAfter("COLUMN").trim().substringBefore(" ")
-            fields.add(createColumn(columnName, line))
+//            fields.add(createColumn(columnName, line))
         }
 
         if (!ignore) {
