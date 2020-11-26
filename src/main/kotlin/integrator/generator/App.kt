@@ -3,9 +3,7 @@
  */
 package integrator.generator
 
-import integrator.generator.dto.Field
-import integrator.generator.dto.ValidationTypeTemplate
-import integrator.generator.dto.ValidationType
+import integrator.generator.generator.generateDto
 import integrator.generator.sdl.ExtractSdlData
 import integrator.generator.tbs.TbsDataExtractor
 import integrator.generator.template.DtoTemplate
@@ -52,47 +50,16 @@ fun main(args: Array<String>) {
     props.load(FileInputStream(App().getResouce()))
     props.getProperty("sdl.path")
     println(props.getProperty("sdl.path"))
-
-    ExtractSdlData.extractData(App().entity).second.forEach {
-        fields -> println(fields)
-    }
-    println(generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString));
+//
+//    ExtractSdlData.extractData(App().entity).second.forEach {
+//        fields -> println(fields)
+//    }
+//    println(generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString));
 
     TbsDataExtractor.extractTbsData(props, "R034FUN")
-    FileGenerator().createFileByNameAndText("test.java", "teste")
+//    FileGenerator().createFileByNameAndText("test.java", "teste")
 }
 
-
-
-fun generateDto(extractData: Pair<String?, List<Field>>, templateString: String): String {
-    var bodyTemplate = "";
-    extractData.second.forEach { field ->
-        field.validations?.forEach {
-            when(it.key) {
-                ValidationType.REQUIRED -> {
-                    bodyTemplate += getValidationStringWithField(ValidationTypeTemplate.NOT_EMPTY.value, field.name)
-                    bodyTemplate += getValidationStringWithField(ValidationTypeTemplate.NOT_NULL.value, field.name);
-                }
-                ValidationType.MAX -> {
-                    bodyTemplate += getValidationStringWithField(ValidationTypeTemplate.MAX.value, field.name)
-                }
-                ValidationType.MIN -> {
-                    bodyTemplate += getValidationStringWithField(ValidationTypeTemplate.MIN.value, field.name)
-                }
-                ValidationType.DATE -> {
-                    bodyTemplate += getValidationStringWithField(ValidationTypeTemplate.LOCAL_DATE_RAGE.value, field.name)
-                }
-            }
-        }
-        if(field.type.equals("LocalDate")){
-            field.type = "String";
-        }
-        var type = field.type.trim().substring(0,1).toUpperCase().plus(field.type.trim().substring(1));
-
-        bodyTemplate += "private "+type+" "+field.name+"\n\n";
-    }
-    return bodyTemplate;
-}
 
 fun getValidationStringWithField(rowValidator: String, field: String): String {
     return rowValidator.replace("{{field}}", field)
