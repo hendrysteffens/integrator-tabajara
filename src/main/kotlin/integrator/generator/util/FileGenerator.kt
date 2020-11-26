@@ -7,13 +7,13 @@ import java.util.*
 
 class FileGenerator {
 
-    fun createFileByNameAndText(fileName: String, text: String): java.io.File {
+    fun createFileByNameAndText(fileName: String, text: String) {
         val props = Properties()
         props.load(FileInputStream(App().getResouce()))
-
-        var file = File(props.getProperty("integrator.localtion") + fileName)
+        var folder = File(props.getProperty("integrator.localtion") + "src/hcm-integration/src/main/java/com/senior/hcm/integration/workflows")
+        folder.mkdirs();
+        var file = File(props.getProperty("integrator.localtion") + "src/hcm-integration/src/main/java/com/senior/hcm/integration/workflows/" + fileName.capitalize())
         file.writeText(text)
-        return file
     }
 
 
