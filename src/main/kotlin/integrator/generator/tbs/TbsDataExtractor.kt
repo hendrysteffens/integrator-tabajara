@@ -6,8 +6,8 @@ import java.io.InputStream
 import java.util.*
 
 object TbsDataExtractor {
-    class G5Field(val name: String, val type: String, val required: Boolean, val mask: String)
-    class G5TableDefinition(val fields: Map<String, G5Field>, val primaryKey: Array<G5Field>)
+    class G5Field(val name: String, val type: String, val required: Boolean, var description: String?)
+    class G5TableDefinition(val fields: Map<String, G5Field>, val primaryKey: Array<G5Field>, var foreignKeys: Array<Array<G5Field>>?)
 
     fun extractTbsData(props: Properties, tableName: String): G5TableDefinition? {
         val g5FieldsInputStream = getG5Fields(props, tableName)
@@ -20,46 +20,66 @@ object TbsDataExtractor {
 
                 do {
                     var line = reader.readLine()
-                    var ignore = true
-                    var column: String
-
-                    if (line?.trim()?.startsWith("TABLE") == true) {
-                        contents.append(line)
-                    }
-
-                    if (line?.trim()?.startsWith("COLUMN") == true) {
-                        ignore = false
-                        column = line.substringAfter("COLUMN").substringBefore(" ")
-                        createColumn(column, line)
-                    }
-
-                    if (!ignore) {
-
-                        var comment = false
-
-                        if (!comment) {
-                            if (line?.trim()?.contains("/*") == true) {
-                                line = line.substringBefore("/*")
-                                comment = true
-                            }
-                            contents.append(line)
-                        }
-                        if (comment && line?.trim()?.contains("*/") == true) {
-                            line = line.substringAfter("*/")
-                            comment = false
-                            if (line.isNotBlank()) {
-                                contents.append(line)
-                            }
-                        }
-
-
-                    }
+                    line = parseLine(line, contents)
                 } while (line != null)
 
-                print(contents.toString())
             }
         }
         return null
+    }
+
+    private fun parseLine(lineRaw: String?, contents: StringBuilder): String? {
+        if (lineRaw == null) {
+            return null
+        }
+        var line = lineRaw
+        var ignore = true
+        var columnName: String
+        val fields = mutableListOf<G5Field>()
+
+        if (line.trim().startsWith("TABLE")) {
+            contents.append(line)
+        }
+
+        if (line.trim().startsWith("COLUMN")) {
+            ignore = false
+            columnName = line.substringAfter("COLUMN").trim().substringBefore(" ")
+            fields.add(createColumn(columnName, line))
+        }
+
+        if (!ignore) {
+
+            var comment = false
+
+            if (!comment) {
+                if (line.trim().contains("/*")) {
+                    line = line.substringBefore("/*")
+                    comment = true
+                }
+                contents.append(line)
+            }
+            if (comment && line.trim().contains("*/")) {
+                line = line.substringAfter("*/")
+                comment = false
+                if (line.isNotBlank()) {
+                    contents.append(line)
+                }
+            }
+
+
+        }
+        return line
+    }
+
+    private fun createColumn(columnName: String, line: String?)/*: G5Field*/ {
+        var notNull = line?.contains("NOT NULL") == true
+        var type: String
+        if (line?.contains("DOMAIN") == true) {
+            // TODO verificar de onde vem essa chave
+            type = "String"
+        }
+//        var field = G5Field(columnName, )
+//        return field
     }
 
     private fun getG5Fields(props: Properties, tableName: String): InputStream? {
