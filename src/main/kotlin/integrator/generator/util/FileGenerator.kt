@@ -1,8 +1,9 @@
 package integrator.generator.util
 
-import com.beust.klaxon.Klaxon
-import java.net.HttpURLConnection
-import java.net.URL
+import integrator.generator.App
+import java.io.File
+import java.io.FileInputStream
+import java.util.*
 
 class FileGenerator {
 
@@ -11,7 +12,8 @@ class FileGenerator {
         props.load(FileInputStream(App().getResouce()))
 
         var file = File(props.getProperty("integrator.localtion") + fileName)
-        return file.writeText(text)
+        file.writeText(text)
+        return file
     }
 
 
