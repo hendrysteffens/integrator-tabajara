@@ -15,7 +15,7 @@ class App {
     val entity: String
         get() {
             return "\"Evento da folha de pagamento (R034EVT)\"\n" +
-                    "        custom public entity wagetype {\n" +
+                    "        custom public entity wageType {\n" +
                     "            \"Id do evento\"\n" +
                     "            id : string ( 32 )\n" +
                     "            \"Relacionamento com tabelas de eventos\"\n" +
@@ -50,17 +50,13 @@ fun main(args: Array<String>) {
     props.load(FileInputStream(App().getResouce()))
     props.getProperty("sdl.path")
     println(props.getProperty("sdl.path"))
-//
-//    ExtractSdlData.extractData(App().entity).second.forEach {
-//        fields -> println(fields)
-//    }
-//    println(generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString));
+
+    ExtractSdlData.extractData(App().entity).second.forEach {
+        fields -> println(fields)
+    }
+    println(generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString));
 
     TbsDataExtractor.extractTbsData(props, "R034FUN")
-//    FileGenerator().createFileByNameAndText("test.java", "teste")
+    FileGenerator().createFileByNameAndText(ExtractSdlData.extractData(App().entity).first+"Dto.java", generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString))
 }
 
-
-fun getValidationStringWithField(rowValidator: String, field: String): String {
-    return rowValidator.replace("{{field}}", field)
-}

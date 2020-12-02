@@ -1,11 +1,8 @@
 package integrator.generator.util
 
-import com.beust.klaxon.Klaxon
 import integrator.generator.App
 import java.io.File
 import java.io.FileInputStream
-import java.net.HttpURLConnection
-import java.net.URL
 import java.util.*
 
 class FileGenerator {
@@ -13,9 +10,10 @@ class FileGenerator {
     fun createFileByNameAndText(fileName: String, text: String) {
         val props = Properties()
         props.load(FileInputStream(App().getResouce()))
-
-        var file = File(props.getProperty("integrator.localtion") + fileName)
-        return file.writeText(text)
+        var folder = File(props.getProperty("integrator.localtion") + "src/hcm-integration/src/main/java/com/senior/hcm/integration/workflows")
+        folder.mkdirs();
+        var file = File(props.getProperty("integrator.localtion") + "src/hcm-integration/src/main/java/com/senior/hcm/integration/workflows/" + fileName.capitalize())
+        file.writeText(text)
     }
 
 
