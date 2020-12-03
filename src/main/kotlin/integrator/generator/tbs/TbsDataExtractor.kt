@@ -1,54 +1,46 @@
 package integrator.generator.tbs
 
-import integrator.generator.util.getRestApiResponse
 import java.io.BufferedReader
 import java.io.InputStream
 import java.util.*
 
-object TbsDataExtractor {
-    class G5Field(val name: String, val type: String, val required: Boolean, var description: String?)
-    class G5TableDefinition(val fields: Map<String, G5Field>, val primaryKey: Array<G5Field>, var foreignKeys: Array<Array<G5Field>>?)
+class TbsDataExtractor(private val props: Properties) {
+    private val username: String = props.getProperty("gitlab.user")
+    private val password: String = props.getProperty("gitlab.password")
 
-    fun extractTbsData(props: Properties, tableName: String): G5TableDefinition? {
-        val g5FieldsInputStream = getG5Fields(props, tableName)
+    class G5Field(val name: String, val type: String, val required: Boolean, var description: String?)
+    class G5TableDefinition(
+        val fields: Map<String, G5Field>,
+        val primaryKey: Array<G5Field>,
+        var foreignKeys: Array<Array<G5Field>>?
+    )
+
+    fun extractTbsData(tableName: String): G5TableDefinition? {
+        val g5FieldsInputStream = downloadTbsFile(username, password, tableName, true)
 
         if (g5FieldsInputStream != null) {
             val reader = BufferedReader(g5FieldsInputStream.reader())
 
             reader.use {
-                val contents = StringBuilder()
+                val tbsContent = filterComments(reader)
 
-                do {
-                    var line = reader.readLine()
-                    line = parseLine(line, contents)
-                } while (line != null)
+                val columns = tbsContent.substringAfter("TABLE").split("COLUMN")
+
+                columns.forEachIndexed { index, strColumn ->
+                    if (index > 0) {
+                        val column = createColumn(strColumn)
+                    }
+                }
 
             }
         }
         return null
     }
 
-    private fun parseLine(lineRaw: String?, contents: StringBuilder): String? {
-        if (lineRaw == null) {
-            return null
-        }
-        var line = lineRaw
-        var ignore = true
-        var columnName: String
-        val fields = mutableListOf<G5Field>()
-
-        if (line.trim().startsWith("TABLE")) {
-            contents.append(line)
-        }
-
-        if (line.trim().startsWith("COLUMN")) {
-            ignore = false
-            columnName = line.substringAfter("COLUMN").trim().substringBefore(" ")
-//            fields.add(createColumn(columnName, line))
-        }
-
-        if (!ignore) {
-
+    private fun filterComments(reader: BufferedReader): String {
+        val sb = StringBuilder()
+        reader.lines().forEach { t ->
+            var line = t
             var comment = false
 
             if (!comment) {
@@ -56,56 +48,58 @@ object TbsDataExtractor {
                     line = line.substringBefore("/*")
                     comment = true
                 }
-                contents.append(line)
+                sb.append(line)
             }
             if (comment && line.trim().contains("*/")) {
                 line = line.substringAfter("*/")
                 comment = false
                 if (line.isNotBlank()) {
-                    contents.append(line)
+                    sb.append(line)
                 }
             }
-
-
         }
-        return line
+        return sb.toString()
     }
 
-    private fun createColumn(columnName: String, line: String?)/*: G5Field*/ {
-        var notNull = line?.contains("NOT NULL") == true
-        var type: String
-        if (line?.contains("DOMAIN") == true) {
-            // TODO verificar de onde vem essa chave
-            type = "String"
-        }
-//        var field = G5Field(columnName, )
-//        return field
-    }
 
-    private fun getG5Fields(props: Properties, tableName: String): InputStream? {
-        class AuthMetadata(val access_token: String)
+    private fun createColumn(splitLine: List<String>): G5Field {
+        val columnName = splitLine[1]
 
-        val user = props.getProperty("gitlab.user")
-        val password = props.getProperty("gitlab.password")
+        val indexOfNot = splitLine.indexOf("NOT")
+        var notNull = indexOfNot >= 0 && splitLine.getOrNull(indexOfNot+1) == "NULL"
 
-        if (user.isBlank() || password.isBlank()) {
-            throw Exception("Informar usuário e senha do gitlab no arquivo generator.properties.\n" +
-                    "Ex.\n" +
-                    "gitlab.user=USUÁRIO\n" +
-                    "gitlab.passowrd=SENHA")
+        var type = splitLine[2]
+        if (type == "DOMAIN" || type == "ENUM") { // todo procurar por memory kind
+            val originDomain = splitLine[3].substringBefore("_")
+            val tbsContent = downloadTbsFile(username, password, originDomain, type == "ENUM")
+                ?: throw Exception("Não foi possível baixar o conteúdo do tbs $originDomain")
+            val superColumn = findColumn(tbsContent, columnName)
+                ?: throw Exception("Não foi possível achar o campo $columnName na tabela $originDomain")
+            type = superColumn.trim().split(" ")[2]
         }
 
-        val token = getRestApiResponse<AuthMetadata>(
-                "https://git.senior.com.br/oauth/token?grant_type=password&username=${user}&password=${password}",
-                "POST"
-        ).access_token
-
-        return getRestApiResponse(
-                "https://git.senior.com.br/api/v4/projects/74/repository/files/br.com.senior.rh.tbs%2Fsrc%2Fbr%2Fcom%2Fsenior%2Frh%2Ftables%2F${tableName}.rdbmf/raw?ref=master",
-                "GET",
-                token
-        )
     }
+
+    private fun findColumn(tbsContent: InputStream, columnName: String): String? {
+        val br = BufferedReader(tbsContent.reader())
+
+        val pattern = "COLUMN\\s$columnName".toRegex()
+
+        var line = br.readLine();
+        while (line != null) {
+            if (pattern.containsMatchIn(line)) {
+                return line
+            }
+            line = br.readLine()
+        }
+
+        return null;
+    }
+
+    private fun getOriginDomain(line: String): String {
+
+    }
+
 
 }
 
