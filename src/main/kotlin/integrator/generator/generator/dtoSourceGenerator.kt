@@ -52,7 +52,7 @@ fun generateDto(extractData: Pair<String?, List<Field>>, templateString: String)
 }
 
 fun convertEntityToDtoTemplate(entity: String, dtoFileString: String): String {
-    var entityName = Regex("[^A-Za-z0-9]").replace(entity, "");
+    var entityName = removeSpaceAndSpecialCharacteres(entity);
 
     return dtoFileString
             .replace("{{EntityNamePackage}}", entityName.toLowerCase())
@@ -69,8 +69,4 @@ fun getImportValidation(validation: ValidationTemplate): String {
         return ValidationTemplate.NOT_EMPTY.import
     }
     return ""
-}
-
-fun convertInitialLetter(text: String): String {
-    return text.trim().substring(0, 1).toUpperCase().plus(text.trim().substring(1));
 }

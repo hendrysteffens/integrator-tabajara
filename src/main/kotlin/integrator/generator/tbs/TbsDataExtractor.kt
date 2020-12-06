@@ -17,7 +17,7 @@ class TbsDataExtractor(private val props: Properties) {
     )
 
     fun extractTbsData(tableName: String): G5TableDefinition? {
-        val g5FieldsInputStream = downloadTbsFile(username, password, tableName, true)
+        val g5FieldsInputStream = downloadTbsFile(username, password, tableName, false)
 
         if (g5FieldsInputStream != null) {
             val reader = BufferedReader(g5FieldsInputStream.reader())
@@ -46,8 +46,7 @@ class TbsDataExtractor(private val props: Properties) {
 
         val splitConstraints = constraints.split("\n")
 
-        val strPrimaryKey = splitConstraints.first().substringAfterLast("(")
-            .substringBeforeLast(")")
+        val strPrimaryKey = splitConstraints.first().substringBeforeLast("),").substringAfterLast("(")
 
         val primaryKey = strPrimaryKey.split(",").toTypedArray()
 
@@ -99,9 +98,12 @@ class TbsDataExtractor(private val props: Properties) {
         val notNull = indexOfNot >= 0 && headerSplit.getOrNull(indexOfNot+1) == "NULL"
 
         var type = headerSplit[2]
-        val memoryKind = lines[1].substringAfter("MEMORY KIND ", "")
-        if (memoryKind.isNotEmpty()) {
-            type = memoryKind
+
+        if (lines.size > 1) {
+            val memoryKind = lines[1].substringAfter("MEMORY KIND ", "")
+            if (memoryKind.isNotEmpty()) {
+                type = memoryKind
+            }
         }
 
         return G5Field(columnName, type, notNull)

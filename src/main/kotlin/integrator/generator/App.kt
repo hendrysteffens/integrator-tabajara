@@ -4,9 +4,11 @@
 package integrator.generator
 
 import integrator.generator.generator.generateDto
+import integrator.generator.generator.generateWorkflow
 import integrator.generator.sdl.ExtractSdlData
 import integrator.generator.tbs.TbsDataExtractor
 import integrator.generator.template.DtoTemplate
+import integrator.generator.template.WorkflowTemplate
 import integrator.generator.util.*
 import java.io.FileInputStream
 import java.util.*
@@ -15,7 +17,7 @@ class App {
     val entity: String
         get() {
             return "\"Evento da folha de pagamento (R034EVT)\"\n" +
-                    "        custom public entity wageType {\n" +
+                    "        custom public entity historicalBankAccount {\n" +
                     "            \"Id do evento\"\n" +
                     "            id : string ( 32 )\n" +
                     "            \"Relacionamento com tabelas de eventos\"\n" +
@@ -56,7 +58,11 @@ fun main(args: Array<String>) {
     }
     println(generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString));
 
-    TbsDataExtractor.extractTbsData(props, "R034FUN")
+    var G5Table = "R034CON";
+    TbsDataExtractor(props).extractTbsData(G5Table)?.let{
+        generateWorkflow(it, ExtractSdlData.extractData(App().entity).first.toString(), G5Table, WorkflowTemplate().templateString)
+    };
+
     FileGenerator().createFileByNameAndText(ExtractSdlData.extractData(App().entity).first+"Dto.java", generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString))
 }
 

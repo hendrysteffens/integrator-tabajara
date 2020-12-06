@@ -1,31 +1,111 @@
-package com.senior.hcm.integration.workflows.{{EntityName}};
+package com.senior.hcm.integration.workflows.historicalemployeebankaccount;
 
-import com.senior.hcm.integration.annotations.TranslationClass;
-import com.senior.hcm.integration.annotations.TranslationField;
-import com.senior.hcm.integration.workflows.builder.BaseFullWorkflowDto;
-import lombok.Builder;
-import lombok.Getter;
+import com.google.common.collect.ImmutableList;
+import com.senior.hcm.api.contract.businessmodule.BusinessModuleDTO;
+import com.senior.hcm.integration.CollectionName;
+import com.senior.hcm.integration.DatabaseMappingId;
+import com.senior.hcm.integration.DatabaseMappingWrapper;
+import com.senior.hcm.integration.MetaMigrationCacheRepository;
+import com.senior.hcm.integration.Payload;
+import com.senior.hcm.integration.SyncCacheRepository;
+import com.senior.hcm.integration.SystemPropertiesWrapper;
+import com.senior.hcm.integration.annotations.IntegrationWorkflow;
+import com.senior.hcm.integration.common.ServiceNameConstant;
+import com.senior.hcm.integration.connectors.rest.G5DatabaseWrapper;
+import com.senior.hcm.integration.workflows.WorkflowInformation;
+import com.senior.hcm.integration.workflows.sync.BaseSyncWorkflow;
+import org.apache.commons.lang3.StringUtils;
 
-import javax.validation.constraints.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
 
-{{Imports}}
+import static com.senior.hcm.integration.CollectionName.{{#CollectionName}};
+import static com.senior.hcm.integration.utils.G5FieldNames.*;
 
-@Builder
-@Getter
-public class {{EntityName}}Workflow extends BaseSyncWorkflow<{{EntityName}}Dto> {
+{{#imports}}
+
+@IntegrationWorkflow(modules = {BusinessModuleDTO.{{#Module}}}, //
+        name = "{{#EntityTrace}}",
+        description = "{{#TranslatedEntity}}", //
+        g5TableNames = "{{#TableG5}}",
+        defaultEnabled = true,
+        g7TableName = "{{#EntityUnderline}}",
+        collection = {{#CollectionName}})
+public class {{#EntityCamelCase}}Workflow extends BaseSyncWorkflow<{{#EntityCamelCase}}Dto> {
 
     private final DatabaseMappingWrapper mapping;
+    private static {{#EntityCamelCase}}Workflow instance;
 
+    public static {{#EntityCamelCase}}Workflow getInstance() {
+        if (instance == null) {
+            instance = new {{#EntityCamelCase}}Workflow();
+        }
+        return instance;
+    }
 
-    public HistoricalBankAccountWorkflow() {
+    public {{#EntityCamelCase}}Workflow() {
         this(SystemPropertiesWrapper.getInstance(),
                 MetaMigrationCacheRepository.getInstance(),
                 WorkflowInformation.getInstance(),
                 SyncCacheRepository.getInstance(),
                 G5DatabaseWrapper.getInstance(),
-                DatabaseMappingWrapper.getInstance());
+                DatabaseMappingWrapper.getInstance(),
+                ModuleUtilsWrapper.getInstance());
     }
 
-    {{FieldsAndValidations}}
+    public {{#EntityCamelCase}}Workflow(SystemPropertiesWrapper systemProperties,
+                                         MetaMigrationCacheRepository metaMigrationCacheRepository,
+                                         WorkflowInformation workflowInformation,
+                                         SyncCacheRepository syncCacheRepository,
+                                         G5DatabaseWrapper g5DatabaseWrapper,
+                                         DatabaseMappingWrapper databaseMapping,
+                                         ModuleUtilsWrapper moduleUtils) {
+        super(systemProperties, metaMigrationCacheRepository, workflowInformation, syncCacheRepository,
+                g5DatabaseWrapper, databaseMapping, moduleUtils);
+        this.mapping = databaseMapping;
+    }
+
+    @Override
+    public Optional<{{#EntityCamelCase}}Dto> build(Payload payload) {
+        {{#BodyBuild}}
+    }
+
+    @Override
+    public Object[] getPrimaryKey(Payload payload) {
+        {{#BodyGetPrimaryKey}}
+    }
+
+    @Override
+    protected String getEntityQueryPath() {
+        return "./queries/{{#G5QueryName}}.sql";
+    }
+
+    @Override
+    protected Object[] getSyncQueryParams(Payload payload) {
+        return getPrimaryKey(payload);
+    }
+
+    @Override
+    protected String getSyncQueryPath() {
+        return "./queries/{{#G5SyncQueryName}}.sql";
+    }
+
+    @Override
+    public String getServiceName() {
+        return ServiceNameConstant.{{#ServiceName}};
+    }
+
+    @Override
+    public List<String> monitoredFields() {
+        return {{#BodyMonitoredFields}}
+    }
+    private String getDate(Payload payload, String dateField) {
+        LocalDateTime date = payload.getAsLocalDateTime(dateField);
+        return Optional.ofNullable(date) //
+                .map(value -> value.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")))
+                .orElse(null);
+    }
 
 }
