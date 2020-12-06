@@ -8,11 +8,12 @@ class TbsDataExtractor(private val props: Properties) {
     private val username: String = props.getProperty("gitlab.user")
     private val password: String = props.getProperty("gitlab.password")
 
-    class G5Field(val name: String, val type: String, val required: Boolean, var description: String?)
+    class G5Field(val name: String, val type: String, val required: Boolean)
+    class G5ForeignKey(val tableName: String, val fields: Array<String>)
     class G5TableDefinition(
         val fields: Map<String, G5Field>,
-        val primaryKey: Array<G5Field>,
-        var foreignKeys: Array<Array<G5Field>>?
+        val primaryKey: Array<String>,
+        var foreignKeys: Array<G5ForeignKey>?
     )
 
     fun extractTbsData(tableName: String): G5TableDefinition? {
@@ -24,17 +25,44 @@ class TbsDataExtractor(private val props: Properties) {
             reader.use {
                 val tbsContent = filterComments(reader)
 
-                val columns = tbsContent.substringAfter("TABLE").split("COLUMN")
+                val strColumns = tbsContent.substringAfter("TABLE").split("COLUMN")
 
-                columns.forEachIndexed { index, strColumn ->
-                    if (index > 0) {
-                        val column = createColumn(strColumn)
-                    }
+                val columns = strColumns.drop(1).map { strColumn ->
+                    createColumn(strColumn)
                 }
 
+                val constraints = strColumns.last().split("PRIMARY KEY").last()
+                return generateTableDefinition(constraints, columns)
             }
         }
         return null
+    }
+
+    private fun generateTableDefinition(
+        constraints: String,
+        columns: List<G5Field>
+    ): G5TableDefinition {
+        val fields = columns.map { it.name to it }.toMap()
+
+        val splitConstraints = constraints.split("\n")
+
+        val strPrimaryKey = splitConstraints.first().substringAfterLast("(")
+            .substringBeforeLast(")")
+
+        val primaryKey = strPrimaryKey.split(",").toTypedArray()
+
+        val foreignKeys = splitConstraints.drop(1)
+            .filter { it.contains("FOREIGN KEY") }
+            .map { G5ForeignKey(
+                    it.substringAfter("REFERENCES ").substringBefore(" "),
+                    it.substringBefore("(").substringAfter(")")
+                        .split(",")
+                        .toTypedArray()
+                )
+            }
+            .toTypedArray()
+
+        return G5TableDefinition(fields, primaryKey, foreignKeys)
     }
 
     private fun filterComments(reader: BufferedReader): String {
@@ -62,44 +90,22 @@ class TbsDataExtractor(private val props: Properties) {
     }
 
 
-    private fun createColumn(splitLine: List<String>): G5Field {
-        val columnName = splitLine[1]
+    private fun createColumn(strColumn: String): G5Field {
+        val lines = strColumn.split("\n")
+        val headerSplit = lines[0].split(" ")
+        val columnName = headerSplit[1]
 
-        val indexOfNot = splitLine.indexOf("NOT")
-        var notNull = indexOfNot >= 0 && splitLine.getOrNull(indexOfNot+1) == "NULL"
+        val indexOfNot = headerSplit.indexOf("NOT")
+        val notNull = indexOfNot >= 0 && headerSplit.getOrNull(indexOfNot+1) == "NULL"
 
-        var type = splitLine[2]
-        if (type == "DOMAIN" || type == "ENUM") { // todo procurar por memory kind
-            val originDomain = splitLine[3].substringBefore("_")
-            val tbsContent = downloadTbsFile(username, password, originDomain, type == "ENUM")
-                ?: throw Exception("Não foi possível baixar o conteúdo do tbs $originDomain")
-            val superColumn = findColumn(tbsContent, columnName)
-                ?: throw Exception("Não foi possível achar o campo $columnName na tabela $originDomain")
-            type = superColumn.trim().split(" ")[2]
+        var type = headerSplit[2]
+        val memoryKind = lines[1].substringAfter("MEMORY KIND ", "")
+        if (memoryKind.isNotEmpty()) {
+            type = memoryKind
         }
 
+        return G5Field(columnName, type, notNull)
     }
-
-    private fun findColumn(tbsContent: InputStream, columnName: String): String? {
-        val br = BufferedReader(tbsContent.reader())
-
-        val pattern = "COLUMN\\s$columnName".toRegex()
-
-        var line = br.readLine();
-        while (line != null) {
-            if (pattern.containsMatchIn(line)) {
-                return line
-            }
-            line = br.readLine()
-        }
-
-        return null;
-    }
-
-    private fun getOriginDomain(line: String): String {
-
-    }
-
 
 }
 
