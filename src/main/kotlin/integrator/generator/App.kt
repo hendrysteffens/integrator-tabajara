@@ -28,8 +28,6 @@ fun main(args: Array<String>) {
 
     val props = Properties()
     props.load(FileInputStream(App().getResouce()))
-    props.getProperty("sdl.path")
-    println(props.getProperty("sdl.path"))
 
     ExtractSdlData.extractData(App().entity).second.forEach {
         fields -> println(fields)
@@ -42,7 +40,6 @@ fun main(args: Array<String>) {
     };
 
     FileGenerator().createFileByNameAndText(ExtractSdlData.extractData(App().entity).first+"Dto.java", generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString))
-    print(App().entity)
 
 }
 
