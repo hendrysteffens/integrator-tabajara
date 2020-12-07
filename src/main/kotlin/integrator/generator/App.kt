@@ -16,29 +16,7 @@ import java.util.*
 class App {
     val entity: String
         get() {
-            return "\"Evento da folha de pagamento (R034EVT)\"\n" +
-                    "        custom public entity historicalBankAccount {\n" +
-                    "            \"Id do evento\"\n" +
-                    "            id : string ( 32 )\n" +
-                    "            \"Relacionamento com tabelas de eventos\"\n" +
-                    "            wageTypeTable : wageTypeTable\n" +
-                    "            \"Código do evento\"\n" +
-                    "            code : integer\n" +
-                    "            \"Descrição do evento\"\n" +
-                    "            name : string\n" +
-                    "            \"Tipo de valor do evento\"\n" +
-                    "            wageValueType : wageValueType\n" +
-                    "            \"Tipo do evento\"\n" +
-                    "            type : wageTypeCategory\n" +
-                    "            \"Categoria do Evento\"\n" +
-                    "            characteristic : wageTypeCharacteristic\n" +
-                    "            \"Data de criação\"\n" +
-                    "            creationdate : date?\n" +
-                    "            \"Data de extinção\"\n" +
-                    "            expirationdate : date?\n" +
-                    "            \"Identificador do sindicato do da contribuição sindical\"\n" +
-                    "            syndicate : string ( 32 )?\n" +
-                    "        }"
+            return ExtractSdlData.getSdlEntityText();
         }
 
     fun getResouce() :String{
@@ -64,5 +42,7 @@ fun main(args: Array<String>) {
     };
 
     FileGenerator().createFileByNameAndText(ExtractSdlData.extractData(App().entity).first+"Dto.java", generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString))
+    print(App().entity)
+
 }
 

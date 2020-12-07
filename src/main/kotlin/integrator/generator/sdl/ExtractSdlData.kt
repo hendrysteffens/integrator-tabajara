@@ -1,7 +1,12 @@
 package integrator.generator.sdl;
 
+import integrator.generator.App
 import integrator.generator.dto.Field
 import integrator.generator.dto.ValidationType
+import java.io.File
+import java.io.FileInputStream
+import java.util.*
+import kotlin.collections.ArrayList
 
 object ExtractSdlData {
     fun extractData(entityText: String): Pair<String?, List<Field>> {
@@ -51,4 +56,14 @@ object ExtractSdlData {
     private fun verifyRequiredField(fieldType: String): Boolean {
         return !fieldType.contains("?")
     }
+
+    fun getSdlEntityText() : String {
+        val props = Properties()
+        props.load(FileInputStream(App().getResouce()))
+        val sdl = File(props.getProperty("integrator.backend.location") + "main.sdl").bufferedReader()
+        val sdlString = sdl.use { it.readText() }
+        val regex = ".*\\n.*\\b(?<=entity " + props.getProperty("integrator.entity") + ")(.|\\n)*?(?=}).*"
+        return regex.toRegex().find(sdlString)?.value ?: "";
+    }
+
 }
