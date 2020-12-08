@@ -44,7 +44,7 @@ class TbsDataExtractor(private val props: Properties) {
     ): G5TableDefinition {
         val fields = columns.map { it.name to it }.toMap()
 
-        val splitConstraints = constraints.split("\n")
+        val splitConstraints = constraints.split(",\t")
 
         val strPrimaryKey = splitConstraints.first().substringBeforeLast("),").substringAfterLast("(")
 
