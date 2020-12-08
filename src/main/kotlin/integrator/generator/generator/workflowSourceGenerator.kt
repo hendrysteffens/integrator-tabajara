@@ -1,46 +1,56 @@
 package integrator.generator.generator
 
+import integrator.generator.dto.Field
 import integrator.generator.sdl.ExtractSdlData
 import integrator.generator.tbs.TbsDataExtractor
+import java.util.stream.Collectors
 
-const val SPACE_PRIMARY_KEY: String = "                ";
-    const val STRING_BUILD: String = ".{{#fieldDto}}(payload.getAsString({{#fieldPayload}})) //";
-fun generateWorkflow(extractData: TbsDataExtractor.G5TableDefinition, entityName: String, g5Table: String, templateString: String): String {
+const val SPACE_PRIMARY_KEY: String = "                "
+    const val STRING_BUILD: String = ".{{#fieldDto}}(payload.getAsString({{#fieldPayload}})) //"
+fun generateWorkflow(extractData: TbsDataExtractor.G5TableDefinition, entityName: String, g5Table: String, templateString: String, fields: List<Field>): String {
+    var workflow  = templateString.replace("{{#EntityTrace}}", getEntityName(entityName, EntityNameType.TRACE))
+    var translatedEntityName = ""
+    workflow = workflow.replace("{{#TableG5}}", g5Table)
+    workflow  = workflow.replace("{{#EntityUnderline}}", getEntityName(entityName, EntityNameType.UNDERLINE_LOWER))
+    workflow  = workflow.replace("{{#CollectionName}}", getEntityName(entityName, EntityNameType.UNDERLINE_UPPER))
+    workflow  = workflow.replace("{{#EntityCamelCase}}", getEntityName(entityName, EntityNameType.CAMEL_CASE))
+    workflow  = workflow.replace("{{#BodyBuild}}",  getBuild(fields))
+    workflow  = workflow.replace("{{#BodyGetPrimaryKey}}", getPrimaryKeys(extractData))
+    workflow  = workflow.replace("{{#ServiceName}}", ExtractSdlData.getServiceName().toUpperCase())
+    workflow  = workflow.replace("{{#BodyMonitoredFields}}", getMonitoredFields(extractData))
 
-    var entityTrace = getEntityName(entityName, EntityNameType.TRACE);
-    var translatedEntityName = "";
-    var tableG5 = g5Table;
-    var entityUnderline = getEntityName(entityName, EntityNameType.UNDERLINE_LOWER);
-    var collectionName = getEntityName(entityName, EntityNameType.UNDERLINE_UPPER);
-    var entityCamelCase = getEntityName(entityName, EntityNameType.CAMEL_CASE);
-    var bodyBuild = "";
-    var bodyGetPrimaryKey = getPrimaryKeys(extractData);
-    var serviceName = ExtractSdlData.getServiceName();
-    var bodyMonitoredFields = getMonitoredFields(extractData);
 
-
-    return "";
+    return workflow
 }
 
+fun getBuild(fields: List<Field>): String {
+    return fields
+            .stream()
+            .filter{!(it.name.equals("id") || it.name.equals("externalId")|| it.name.equals("isIntegration"))}
+            .map{ STRING_BUILD.replace("{{#fieldDto}}", getEntityName(it.name, EntityNameType.UNDERLINE_LOWER)) }
+            .collect(Collectors.joining("\n"))
+}
+
+
 fun getEntityName(name: String, type: EntityNameType): String {
-    var entityName = "";
-    val regex = Regex("(?<![0-9])(?=[A-Z])");
+    var entityName = ""
+    val regex = Regex("(?<![0-9])(?=[A-Z])")
 
     entityName = when (type) {
-        EntityNameType.TRACE -> regex.replace(name, "-").toLowerCase();
-        EntityNameType.UNDERLINE_LOWER -> regex.replace(name, "_").toLowerCase();
-        EntityNameType.UNDERLINE_UPPER -> regex.replace(name, "_").toUpperCase();
-        EntityNameType.CAMEL_CASE -> convertInitialLetter(name);
+        EntityNameType.TRACE -> regex.replace(name, "-").toLowerCase()
+        EntityNameType.UNDERLINE_LOWER -> regex.replace(name, "_").toLowerCase()
+        EntityNameType.UNDERLINE_UPPER -> regex.replace(name, "_").toUpperCase()
+        EntityNameType.CAMEL_CASE -> convertInitialLetter(name)
         else -> "Invalid Type"
     }
 
-    return entityName;
+    return entityName
 }
 
 fun getPrimaryKeys(extractData: TbsDataExtractor.G5TableDefinition): String {
-    var payloadGetType = "                ";
+    var payloadGetType = ""
     extractData.primaryKey.forEach {
-        val key = removeSpaceAndSpecialCharacteres(it);
+        val key = removeSpaceAndSpecialCharacteres(it)
 
         if (extractData.fields[key]?.type.equals("DATE")) {
             payloadGetType += "payload.getAsLocalDate(\"" + key + "\"), //\n" + SPACE_PRIMARY_KEY
@@ -49,22 +59,21 @@ fun getPrimaryKeys(extractData: TbsDataExtractor.G5TableDefinition): String {
         }
     }
 
-    return payloadGetType;
+    return payloadGetType.substringBeforeLast(",")
 }
 
 fun getMonitoredFields(extractData: TbsDataExtractor.G5TableDefinition): String {
-    var fields = "";
-    var count = 0;
+    var fields = ""
+    var count = 0
     extractData.primaryKey.forEach {
-        val field = removeSpaceAndSpecialCharacteres(it);
-
-        var comma = "";
-        if (count != 0) comma = ", ";
-        fields += comma + field.toLowerCase();
-        count++;
+        val field = removeSpaceAndSpecialCharacteres(it).toLowerCase()
+        var comma = ""
+        if (count != 0) comma = ", "
+        fields += "$comma\"$field\""
+        count++
     }
 
-    return fields;
+    return fields
 }
 
 enum class EntityNameType {

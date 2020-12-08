@@ -36,7 +36,7 @@ fun main(args: Array<String>) {
 
     var G5Table = "R034CON";
     TbsDataExtractor(props).extractTbsData(G5Table)?.let{
-        generateWorkflow(it, ExtractSdlData.extractData(App().entity).first.toString(), G5Table, WorkflowTemplate().templateString)
+        generateWorkflow(it, ExtractSdlData.extractData(App().entity).first.toString(), G5Table, WorkflowTemplate().templateString, ExtractSdlData.extractData(App().entity).second)
     };
 
     FileGenerator().createFileByNameAndText(ExtractSdlData.extractData(App().entity).first+"Dto.java", generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString))

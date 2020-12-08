@@ -55,6 +55,11 @@ public class {{#EntityCamelCase}}Workflow extends BaseSyncWorkflow<{{#EntityCame
                 ModuleUtilsWrapper.getInstance());
     }
 
+    @Override
+    public String getServiceName() {
+        return ServiceNameConstant.{{#ServiceName}};
+    }
+
     public {{#EntityCamelCase}}Workflow(SystemPropertiesWrapper systemProperties,
                                          MetaMigrationCacheRepository metaMigrationCacheRepository,
                                          WorkflowInformation workflowInformation,
@@ -76,25 +81,13 @@ public class {{#EntityCamelCase}}Workflow extends BaseSyncWorkflow<{{#EntityCame
 
     @Override
     public Object[] getPrimaryKey(Payload payload) {
-        return createPrimaryKey({{#BodyGetPrimaryKey}})
+        return createPrimaryKey({{#BodyGetPrimaryKey}});
     }
-
-
-    @Override
-    protected Object[] getSyncQueryParams(Payload payload) {
-        return getPrimaryKey(payload);
-    }
-
 
     @Override
     public List<String> monitoredFields() {
-        return {{#BodyMonitoredFields}}
+        return ImmutableList.of({{#BodyMonitoredFields}});
     }
-    private String getDate(Payload payload, String dateField) {
-        LocalDateTime date = payload.getAsLocalDateTime(dateField);
-        return Optional.ofNullable(date) //
-                .map(value -> value.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S")))
-                .orElse(null);
-    }
+
 
 }

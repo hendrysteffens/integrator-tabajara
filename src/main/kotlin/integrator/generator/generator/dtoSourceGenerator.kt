@@ -5,53 +5,53 @@ import integrator.generator.dto.ValidationTemplate
 import integrator.generator.dto.ValidationType
 
 
-const val SPACE_TAB: String = "    ";
-public var listImport = arrayListOf<String>();
+const val SPACE_TAB: String = "    "
+public var listImport = arrayListOf<String>()
 fun generateDto(extractData: Pair<String?, List<Field>>, templateString: String): String {
     var templateDto = convertEntityToDtoTemplate(extractData.first.toString(), templateString)
-    var body = "";
-    var importString = "";
-    listImport = arrayListOf();
+    var body = ""
+    var importString = ""
+    listImport = arrayListOf()
 
     extractData.second.forEach { field ->
         field.validations?.forEach {
             when (it.key) {
                 ValidationType.REQUIRED -> {
                     body += getValidationStringWithField(ValidationTemplate.NOT_EMPTY.value, field.name)
-                    body += getValidationStringWithField(ValidationTemplate.NOT_NULL.value, field.name);
-                    importString += getImportValidation(ValidationTemplate.NOT_NULL);
-                    importString += getImportValidation(ValidationTemplate.NOT_EMPTY);
+                    body += getValidationStringWithField(ValidationTemplate.NOT_NULL.value, field.name)
+                    importString += getImportValidation(ValidationTemplate.NOT_NULL)
+                    importString += getImportValidation(ValidationTemplate.NOT_EMPTY)
                 }
                 ValidationType.MAX -> {
                     body += getValidationStringWithField(ValidationTemplate.MAX.value, field.name)
-                    importString += getImportValidation(ValidationTemplate.MAX);
+                    importString += getImportValidation(ValidationTemplate.MAX)
                 }
                 ValidationType.MIN -> {
                     body += getValidationStringWithField(ValidationTemplate.MIN.value, field.name)
-                    importString += getImportValidation(ValidationTemplate.MIN);
+                    importString += getImportValidation(ValidationTemplate.MIN)
                 }
                 ValidationType.DATE -> {
                     body += getValidationStringWithField(ValidationTemplate.LOCAL_DATE_RAGE.value, field.name)
-                    importString += getImportValidation(ValidationTemplate.LOCAL_DATE_RAGE);
+                    importString += getImportValidation(ValidationTemplate.LOCAL_DATE_RAGE)
                 }
                 else -> "Invalid Type"
             }
         }
         if (field.type.equals("LocalDate")) {
-            field.type = "String";
+            field.type = "String"
         }
-        val type = convertInitialLetter(field.type);
-        body += SPACE_TAB + "private " + type + " " + field.name + "\n\n";
+        val type = convertInitialLetter(field.type)
+        body += SPACE_TAB + "private " + type + " " + field.name + "\n\n"
     }
 
-    templateDto = templateDto.replace("/*{{Imports}}*/", importString);
-    templateDto = templateDto.replace("{{BodyDtoTemplate}}", body);
+    templateDto = templateDto.replace("/*{{Imports}}*/", importString)
+    templateDto = templateDto.replace("{{BodyDtoTemplate}}", body)
 
-    return templateDto;
+    return templateDto
 }
 
 fun convertEntityToDtoTemplate(entity: String, dtoFileString: String): String {
-    val entityName = removeSpaceAndSpecialCharacteres(entity);
+    val entityName = removeSpaceAndSpecialCharacteres(entity)
 
     return dtoFileString
             .replace("{{EntityNamePackage}}", entityName.toLowerCase())
