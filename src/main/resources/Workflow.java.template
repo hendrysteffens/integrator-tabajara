@@ -26,9 +26,9 @@ import static com.senior.hcm.integration.utils.G5FieldNames.*;
 
 {{#imports}}
 
-@IntegrationWorkflow(modules = {BusinessModuleDTO.{{#Module}}}, //
+@IntegrationWorkflow(modules = {BusinessModuleDTO.{{#DIGITE_OS_MODULOS}}}, //
         name = "{{#EntityTrace}}",
-        description = "{{#TranslatedEntity}}", //
+        description = "{{#TranslatedEntityName}}", //
         g5TableNames = "{{#TableG5}}",
         defaultEnabled = true,
         g7TableName = "{{#EntityUnderline}}",
@@ -69,33 +69,22 @@ public class {{#EntityCamelCase}}Workflow extends BaseSyncWorkflow<{{#EntityCame
 
     @Override
     public Optional<{{#EntityCamelCase}}Dto> build(Payload payload) {
-        {{#BodyBuild}}
+        return Optional.of({{#EntityCamelCase}}Dto.builder()
+                    {{#BodyBuild}}
+                    .build());
     }
 
     @Override
     public Object[] getPrimaryKey(Payload payload) {
-        {{#BodyGetPrimaryKey}}
+        return createPrimaryKey({{#BodyGetPrimaryKey}})
     }
 
-    @Override
-    protected String getEntityQueryPath() {
-        return "./queries/{{#G5QueryName}}.sql";
-    }
 
     @Override
     protected Object[] getSyncQueryParams(Payload payload) {
         return getPrimaryKey(payload);
     }
 
-    @Override
-    protected String getSyncQueryPath() {
-        return "./queries/{{#G5SyncQueryName}}.sql";
-    }
-
-    @Override
-    public String getServiceName() {
-        return ServiceNameConstant.{{#ServiceName}};
-    }
 
     @Override
     public List<String> monitoredFields() {

@@ -17,7 +17,8 @@ object ExtractSdlData {
                 .filterNot { s -> s.trim().startsWith("\"") || s.trim().startsWith("}") || s.contains("entity") }
                 .forEach {
                     val fielLine = it.split(":");
-                    fields.add(processFieldType(fielLine.get(0).trim(), fielLine.get(1)))
+                    if (fielLine.size === 2)
+                        fields.add(processFieldType(fielLine.get(0).trim(), fielLine.get(1)))
                 }
 
         return Pair(entityName, fields)
@@ -63,6 +64,15 @@ object ExtractSdlData {
         val sdl = File(props.getProperty("integrator.backend.location") + "main.sdl").bufferedReader()
         val sdlString = sdl.use { it.readText() }
         val regex = ".*\\n.*\\b(?<=entity " + props.getProperty("integrator.entity") + ")(.|\\n)*?(?=}).*"
+        return regex.toRegex().find(sdlString)?.value ?: "";
+    }
+
+    fun getServiceName() : String {
+        val props = Properties()
+        props.load(FileInputStream(App().getResouce()))
+        val sdl = File(props.getProperty("integrator.backend.location") + "main.sdl").bufferedReader()
+        val sdlString = sdl.use { it.readText() }
+        val regex = "(?<=service\\s).*(?=\\s\\()"
         return regex.toRegex().find(sdlString)?.value ?: "";
     }
 

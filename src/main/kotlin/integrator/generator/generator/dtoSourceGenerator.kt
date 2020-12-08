@@ -3,8 +3,6 @@ package integrator.generator.generator
 import integrator.generator.dto.Field
 import integrator.generator.dto.ValidationTemplate
 import integrator.generator.dto.ValidationType
-import java.io.BufferedReader
-import java.io.FileReader
 
 
 const val SPACE_TAB: String = "    ";
@@ -36,12 +34,13 @@ fun generateDto(extractData: Pair<String?, List<Field>>, templateString: String)
                     body += getValidationStringWithField(ValidationTemplate.LOCAL_DATE_RAGE.value, field.name)
                     importString += getImportValidation(ValidationTemplate.LOCAL_DATE_RAGE);
                 }
+                else -> "Invalid Type"
             }
         }
         if (field.type.equals("LocalDate")) {
             field.type = "String";
         }
-        var type = convertInitialLetter(field.type);
+        val type = convertInitialLetter(field.type);
         body += SPACE_TAB + "private " + type + " " + field.name + "\n\n";
     }
 
@@ -52,7 +51,7 @@ fun generateDto(extractData: Pair<String?, List<Field>>, templateString: String)
 }
 
 fun convertEntityToDtoTemplate(entity: String, dtoFileString: String): String {
-    var entityName = removeSpaceAndSpecialCharacteres(entity);
+    val entityName = removeSpaceAndSpecialCharacteres(entity);
 
     return dtoFileString
             .replace("{{EntityNamePackage}}", entityName.toLowerCase())
