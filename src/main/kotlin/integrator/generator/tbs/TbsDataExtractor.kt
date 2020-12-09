@@ -3,6 +3,7 @@ package integrator.generator.tbs
 import java.io.BufferedReader
 import java.io.InputStream
 import java.util.*
+import java.util.concurrent.atomic.AtomicBoolean
 
 class TbsDataExtractor(private val props: Properties) {
     private val username: String = props.getProperty("gitlab.user")
@@ -17,23 +18,19 @@ class TbsDataExtractor(private val props: Properties) {
     )
 
     fun extractTbsData(tableName: String): G5TableDefinition? {
-        val g5FieldsInputStream = downloadTbsFile(username, password, tableName, false)
+        val g5FieldsInputStream = downloadTbsFile(username, password, tableName)
 
         if (g5FieldsInputStream != null) {
-            val reader = BufferedReader(g5FieldsInputStream.reader())
+            val tbsContent = filterComments(g5FieldsInputStream)
 
-            reader.use {
-                val tbsContent = filterComments(reader)
+            val strColumns = tbsContent.substringAfter("TABLE").split("COLUMN")
 
-                val strColumns = tbsContent.substringAfter("TABLE").split("COLUMN")
-
-                val columns = strColumns.drop(1).map { strColumn ->
-                    createColumn(strColumn)
-                }
-
-                val constraints = strColumns.last().split("PRIMARY KEY").last()
-                return generateTableDefinition(constraints, columns)
+            val columns = strColumns.drop(1).map { strColumn ->
+                createColumn(strColumn)
             }
+
+            val constraints = strColumns.last().split("PRIMARY KEY").last()
+            return generateTableDefinition(constraints, columns)
         }
         return null
     }
@@ -64,30 +61,32 @@ class TbsDataExtractor(private val props: Properties) {
         return G5TableDefinition(fields, primaryKey, foreignKeys)
     }
 
-    private fun filterComments(reader: BufferedReader): String {
-        val sb = StringBuilder()
-        reader.lines().forEach { t ->
-            var line = t
-            var comment = false
+    private fun filterComments(inputStream: InputStream): String {
+        val reader = BufferedReader(inputStream.reader())
+        val sb = StringJoiner("\n")
+        val comment = AtomicBoolean(false)
+        reader.use {
+            it.lines().forEach { _line ->
+                var line = _line
 
-            if (!comment) {
-                if (line.trim().contains("/*")) {
-                    line = line.substringBefore("/*")
-                    comment = true
+                if (!comment.get()) {
+                    if (line.trim().contains("/*")) {
+                        line = line.substringBefore("/*")
+                        comment.set(true)
+                    }
+                    sb.add(line)
                 }
-                sb.append(line)
-            }
-            if (comment && line.trim().contains("*/")) {
-                line = line.substringAfter("*/")
-                comment = false
-                if (line.isNotBlank()) {
-                    sb.append(line)
+                if (comment.get() && line.trim().contains("*/")) {
+                    line = line.substringAfter("*/")
+                    comment.set(false)
+                    if (line.isNotBlank()) {
+                        sb.add(line)
+                    }
                 }
             }
         }
         return sb.toString()
     }
-
 
     private fun createColumn(strColumn: String): G5Field {
         val lines = strColumn.split("\n")
@@ -96,6 +95,15 @@ class TbsDataExtractor(private val props: Properties) {
 
         val indexOfNot = headerSplit.indexOf("NOT")
         val notNull = indexOfNot >= 0 && headerSplit.getOrNull(indexOfNot+1) == "NULL"
+
+        val type = getColumnType(strColumn)
+
+        return G5Field(columnName, type, notNull)
+    }
+
+    private fun getColumnType(strColumn: String, level: String = "DEEP"): String {
+        val lines = strColumn.split("\n")
+        val headerSplit = lines[0].split(" ")
 
         var type = headerSplit[2]
 
@@ -106,7 +114,22 @@ class TbsDataExtractor(private val props: Properties) {
             }
         }
 
-        return G5Field(columnName, type, notNull)
+        if (type == "DOMAIN" && level == "DEEP") {
+            val tableName = headerSplit[3].substringBefore("_")
+            val content = downloadTbsFile(username, password, tableName)
+            if (content != null) {
+                val filtered = filterComments(content)
+                val regex = """.*(?<=DOMAIN ${headerSplit[3]})(.|\n)*?(?=]).*"""
+                    .toRegex()
+                return getColumnType(regex.find(filtered)?.value ?: "", "FIRST")
+            } else {
+                throw Exception(
+                    """Erro ao ler conteúdo da linha ${lines[0]}
+    Conteúdo da tabela ${tableName} retornou vazio"""
+                )
+            }
+        }
+        return type
     }
 
 }
