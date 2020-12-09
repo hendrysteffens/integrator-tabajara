@@ -1,6 +1,7 @@
 package integrator.generator.generator
 
 import integrator.generator.dto.Field
+import integrator.generator.sdl.ExtractQueryData
 import integrator.generator.sdl.ExtractSdlData
 import integrator.generator.tbs.TbsDataExtractor
 import java.util.stream.Collectors
@@ -8,6 +9,9 @@ import java.util.stream.Collectors
 const val SPACE_PRIMARY_KEY: String = "                "
     const val STRING_BUILD: String = ".{{#fieldDto}}(payload.getAsString({{#fieldPayload}})) //"
 fun generateWorkflow(extractData: TbsDataExtractor.G5TableDefinition, entityName: String, g5Table: String, templateString: String, fields: List<Field>): String {
+    val queryData = ExtractQueryData.extractDataQuery(getEntityName(entityName, EntityNameType.TRACE))
+    val syncQueryData = ExtractQueryData.extractDataSyncQuery(getEntityName(entityName, EntityNameType.TRACE))
+
     var workflow  = templateString.replace("{{#EntityTrace}}", getEntityName(entityName, EntityNameType.TRACE))
     var translatedEntityName = ""
     workflow = workflow.replace("{{#TableG5}}", g5Table)
