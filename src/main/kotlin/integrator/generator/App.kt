@@ -16,40 +16,45 @@ import java.nio.file.Paths
 import java.util.*
 
 class App {
+    val props = Properties()
+
     val entity: String
         get() {
-            return ExtractSdlData.getSdlEntityText();
+            return ExtractSdlData(props).getSdlEntityText();
         }
 
     fun getResouce() :String{
         return this.javaClass.classLoader.getResource("generator.properties").file;
     }
+
+    init {
+        props.load(FileInputStream(this.getResouce()))
+    }
 }
 
 fun main(args: Array<String>) {
 
-    val props = Properties()
-    props.load(FileInputStream(App().getResouce()))
+    val app = App()
 
     if (args.isNotEmpty()) {
-        props.setProperty("integrator.entity", args[0])
+        app.props.setProperty("integrator.entity", args[0])
     }
 
     if (File("main.sdl").exists()) {
-        props.setProperty("integrator.backend.location", Paths.get("").toAbsolutePath().toString())
+        app.props.setProperty("integrator.backend.location", Paths.get("").toAbsolutePath().toString())
     }
 
-    ExtractSdlData.extractData(App().entity).second.forEach {
+    ExtractSdlData(app.props).extractData(app.entity).second.forEach {
         fields -> println(fields)
     }
-    println(generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString));
+    println(generateDto(ExtractSdlData(app.props).extractData(app.entity), DtoTemplate().templateString));
 
     var G5Table = "R034CON";
-    TbsDataExtractor(props).extractTbsData(G5Table)?.let{
-        generateWorkflow(it, ExtractSdlData.extractData(App().entity).first.toString(), G5Table, WorkflowTemplate().templateString, ExtractSdlData.extractData(App().entity).second)
+    TbsDataExtractor(app.props).extractTbsData(G5Table)?.let{
+        generateWorkflow(it, ExtractSdlData(app.props).extractData(app.entity).first.toString(), G5Table, WorkflowTemplate().templateString, ExtractSdlData(app.props).extractData(app.entity).second)
     };
 
-    FileGenerator().createFileByNameAndText(ExtractSdlData.extractData(App().entity).first+"Dto.java", generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString))
+    FileGenerator().createFileByNameAndText(ExtractSdlData(app.props).extractData(app.entity).first+"Dto.java", generateDto(ExtractSdlData(app.props).extractData(App().entity), DtoTemplate().templateString))
 
 }
 
