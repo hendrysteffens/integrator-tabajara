@@ -9,16 +9,18 @@ import kotlin.collections.ArrayList
 
 class IntegrationLegacyExtractor {
 
-    private val regexFindFieldName  = "(?<=\\.).*(?=\\=.*posicao)";
 
-    fun extractData(serviceName: String, entityName: String): List<Pair<String, String>> {
+    fun extractData(serviceName: String, entityName: String): List<Pair<String?, String?>> {
+        var  mapperG5G7Fields = ArrayList<Pair<String?, String?>>();
         val props = Properties()
         props.load(FileInputStream(App().getResouce()))
         val mapper = File(props.getProperty("integrator.location") + "src\\hcm-integration\\src\\main\\java\\com\\senior\\hcm\\integration\\mappers\\${serviceName}\\${entityName}Mapper").bufferedReader()
         val mapperString = mapper.use { it.readText() }
         ExtractQueryData.extractDataQuery(entityName)
                 .stream()
-                .map {  };
-        return ArrayList();
+                .forEach{
+                    mapperG5G7Fields.add(Pair(it.alias,"(?<=\\.).*(?=\\=.*${it.name})".toRegex().find(mapperString)?.value))
+                };
+        return mapperG5G7Fields;
     }
 }
