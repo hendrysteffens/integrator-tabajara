@@ -10,7 +10,9 @@ import integrator.generator.tbs.TbsDataExtractor
 import integrator.generator.template.DtoTemplate
 import integrator.generator.template.WorkflowTemplate
 import integrator.generator.util.*
+import java.io.File
 import java.io.FileInputStream
+import java.nio.file.Paths
 import java.util.*
 
 class App {
@@ -28,6 +30,14 @@ fun main(args: Array<String>) {
 
     val props = Properties()
     props.load(FileInputStream(App().getResouce()))
+
+    if (args.isNotEmpty()) {
+        props.setProperty("integrator.entity", args[0])
+    }
+
+    if (File("main.sdl").exists()) {
+        props.setProperty("integrator.backend.location", Paths.get("").toAbsolutePath().toString())
+    }
 
     ExtractSdlData.extractData(App().entity).second.forEach {
         fields -> println(fields)
