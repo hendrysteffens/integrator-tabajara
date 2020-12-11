@@ -5,6 +5,7 @@ package integrator.generator
 
 import integrator.generator.generator.generateDto
 import integrator.generator.generator.generateWorkflow
+import integrator.generator.integrationlegacy.IntegrationLegacyExtractor
 import integrator.generator.sdl.ExtractSdlData
 import integrator.generator.tbs.TbsDataExtractor
 import integrator.generator.template.DtoTemplate
@@ -28,6 +29,7 @@ class App {
 
 fun main(args: Array<String>) {
 
+    print(IntegrationLegacyExtractor().extractData(ExtractSdlData.getServiceName(), ExtractSdlData.extractData(App().entity).first.toString()))
     val props = Properties()
     props.load(FileInputStream(App().getResouce()))
 
@@ -46,10 +48,10 @@ fun main(args: Array<String>) {
 
     var G5Table = "R034CON";
     TbsDataExtractor(props).extractTbsData(G5Table)?.let{
-        generateWorkflow(it, ExtractSdlData.extractData(App().entity).first.toString(), G5Table, WorkflowTemplate().templateString, ExtractSdlData.extractData(App().entity).second)
+        FileGenerator().createFileByNameAndText(props.getProperty("integrator.entity"),ExtractSdlData.extractData(App().entity).first+"Workflow.java", generateWorkflow(it, ExtractSdlData.extractData(App().entity).first.toString(), G5Table, WorkflowTemplate().templateString, ExtractSdlData.extractData(App().entity).second))
     };
 
-    FileGenerator().createFileByNameAndText(ExtractSdlData.extractData(App().entity).first+"Dto.java", generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString))
+    FileGenerator().createFileByNameAndText(props.getProperty("integrator.entity"),ExtractSdlData.extractData(App().entity).first+"Dto.java", generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString))
 
 }
 

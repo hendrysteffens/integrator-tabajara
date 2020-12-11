@@ -41,7 +41,7 @@ fun generateDto(extractData: Pair<String?, List<Field>>, templateString: String)
             field.type = "String"
         }
         val type = convertInitialLetter(field.type)
-        body += SPACE_TAB + "private " + type + " " + field.name + "\n\n"
+        body += SPACE_TAB + "private " + type + " " + field.name + " ;\n\n"
     }
 
     templateDto = templateDto.replace("/*{{Imports}}*/", importString)

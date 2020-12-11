@@ -7,12 +7,12 @@ import java.util.*
 
 class FileGenerator {
 
-    fun createFileByNameAndText(fileName: String, text: String) {
+    fun createFileByNameAndText(entityName :String, fileName: String, text: String) {
         val props = Properties()
         props.load(FileInputStream(App().getResouce()))
-        var folder = File(props.getProperty("integrator.location") + "src/hcm-integration/src/main/java/com/senior/hcm/integration/workflows")
+        var folder = File(props.getProperty("integrator.location") + "src/hcm-integration/src/main/java/com/senior/hcm/integration/workflows/${entityName}")
         folder.mkdirs();
-        var file = File(props.getProperty("integrator.location") + "src/hcm-integration/src/main/java/com/senior/hcm/integration/workflows/" + fileName.capitalize())
+        var file = File(props.getProperty("integrator.location") + "src/hcm-integration/src/main/java/com/senior/hcm/integration/workflows/${entityName}/${fileName.capitalize()}")
         file.writeText(text)
     }
 

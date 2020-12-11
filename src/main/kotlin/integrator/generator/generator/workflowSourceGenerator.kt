@@ -1,6 +1,7 @@
 package integrator.generator.generator
 
 import integrator.generator.dto.Field
+import integrator.generator.integrationlegacy.IntegrationLegacyExtractor
 import integrator.generator.sdl.ExtractQueryData
 import integrator.generator.sdl.ExtractSdlData
 import integrator.generator.tbs.TbsDataExtractor
@@ -18,7 +19,7 @@ fun generateWorkflow(extractData: TbsDataExtractor.G5TableDefinition, entityName
     workflow  = workflow.replace("{{#EntityUnderline}}", getEntityName(entityName, EntityNameType.UNDERLINE_LOWER))
     workflow  = workflow.replace("{{#CollectionName}}", getEntityName(entityName, EntityNameType.UNDERLINE_UPPER))
     workflow  = workflow.replace("{{#EntityCamelCase}}", getEntityName(entityName, EntityNameType.CAMEL_CASE))
-    workflow  = workflow.replace("{{#BodyBuild}}",  getBuild(fields))
+    workflow  = workflow.replace("{{#BodyBuild}}",  getBuild(fields, ExtractSdlData.getServiceName(),entityName))
     workflow  = workflow.replace("{{#BodyGetPrimaryKey}}", getPrimaryKeys(extractData))
     workflow  = workflow.replace("{{#ServiceName}}", ExtractSdlData.getServiceName().toUpperCase())
     workflow  = workflow.replace("{{#BodyMonitoredFields}}", getMonitoredFields(extractData))
@@ -27,12 +28,18 @@ fun generateWorkflow(extractData: TbsDataExtractor.G5TableDefinition, entityName
     return workflow
 }
 
-fun getBuild(fields: List<Field>): String {
+fun getBuild(fields: List<Field>, serviceName : String, entityName: String): String {
+    val mapG5G7Fields = IntegrationLegacyExtractor().extractData(serviceName, entityName);
     return fields
             .stream()
             .filter{!(it.name.equals("id") || it.name.equals("externalId")|| it.name.equals("isIntegration"))}
-            .map{ STRING_BUILD.replace("{{#fieldDto}}", getEntityName(it.name, EntityNameType.UNDERLINE_LOWER)) }
+            .map{ STRING_BUILD.replace("{{#fieldDto}}", getEntityName(it.name, EntityNameType.UNDERLINE_LOWER))
+                    .replace("{{#fieldPayload}}", "\"${getFieldDto(mapG5G7Fields, it.name)}\"") }
             .collect(Collectors.joining("\n"))
+}
+
+fun getFieldDto(mapG5G7Fields : List<Pair<String?, String?>>, g7Field: String) : String {
+    return mapG5G7Fields.stream().filter{it.second.equals(g7Field)}.findFirst().get().first.orEmpty();
 }
 
 
