@@ -13,7 +13,7 @@ object ExtractQueryData {
     fun extractDataQuery(entityName: String): ArrayList<FieldQuery> {
         val props = Properties()
         props.load(FileInputStream(App().getResouce()))
-        val query = File(props.getProperty("integrator.location") + "src/hcm-integration/queries/g5-$entityName-query.sql").bufferedReader().use { it.readText() }
+        val query = File(props.getProperty("integrator.location")).resolve("src/hcm-integration/queries/g5-$entityName-query.sql").bufferedReader().use { it.readText() }
         val queryFields = getFieldsOfQuery(query);
 
         return queryFields;
@@ -22,7 +22,7 @@ object ExtractQueryData {
     fun extractDataSyncQuery(entityName: String): ArrayList<FieldQuery> {
         val props = Properties()
         props.load(FileInputStream(App().getResouce()))
-        val syncQuery = File(props.getProperty("integrator.location") + "src/hcm-integration/queries/g5-sync-$entityName-query.sql").bufferedReader().use { it.readText() }
+        val syncQuery = File(props.getProperty("integrator.location")).resolve("src/hcm-integration/queries/g5-sync-$entityName-query.sql").bufferedReader().use { it.readText() }
         val syncQueryFields = getFieldsOfQuery(syncQuery);
 
         return syncQueryFields;

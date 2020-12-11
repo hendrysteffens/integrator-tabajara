@@ -1,5 +1,6 @@
 package integrator.generator.generator
 
+import integrator.generator.App
 import integrator.generator.dto.Field
 import integrator.generator.integrationlegacy.IntegrationLegacyExtractor
 import integrator.generator.sdl.ExtractQueryData
@@ -21,7 +22,7 @@ fun generateWorkflow(extractData: TbsDataExtractor.G5TableDefinition, entityName
     workflow  = workflow.replace("{{#EntityCamelCase}}", getEntityName(entityName, EntityNameType.CAMEL_CASE))
     workflow  = workflow.replace("{{#BodyBuild}}",  getBuild(fields, ExtractSdlData.getServiceName(),entityName))
     workflow  = workflow.replace("{{#BodyGetPrimaryKey}}", getPrimaryKeys(extractData))
-    workflow  = workflow.replace("{{#ServiceName}}", ExtractSdlData.getServiceName().toUpperCase())
+    workflow  = workflow.replace("{{#ServiceName}}", ExtractSdlData(App.props).getServiceName().toUpperCase())
     workflow  = workflow.replace("{{#BodyMonitoredFields}}", getMonitoredFields(extractData))
 
 

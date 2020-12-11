@@ -17,41 +17,48 @@ import java.nio.file.Paths
 import java.util.*
 
 class App {
+    companion object {
+        val props = Properties()
+    }
+
     val entity: String
         get() {
-            return ExtractSdlData.getSdlEntityText();
+            return ExtractSdlData(props).getSdlEntityText();
         }
 
     fun getResouce() :String{
         return this.javaClass.classLoader.getResource("generator.properties").file;
     }
+
+    init {
+        props.load(FileInputStream(this.getResouce()))
+    }
 }
 
 fun main(args: Array<String>) {
 
-    print(IntegrationLegacyExtractor().extractData(ExtractSdlData.getServiceName(), ExtractSdlData.extractData(App().entity).first.toString()))
     val props = Properties()
     props.load(FileInputStream(App().getResouce()))
-
+    val app = App()
     if (args.isNotEmpty()) {
-        props.setProperty("integrator.entity", args[0])
+        App.props.setProperty("integrator.entity", args[0])
     }
 
     if (File("main.sdl").exists()) {
-        props.setProperty("integrator.backend.location", Paths.get("").toAbsolutePath().toString())
+        App.props.setProperty("integrator.backend.location", Paths.get("").toAbsolutePath().toString())
     }
 
-    ExtractSdlData.extractData(App().entity).second.forEach {
+    ExtractSdlData(App.props).extractData(app.entity).second.forEach {
         fields -> println(fields)
     }
-    println(generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString));
+    println(generateDto(ExtractSdlData(App.props).extractData(app.entity), DtoTemplate().templateString));
 
     var G5Table = "R034CON";
-    TbsDataExtractor(props).extractTbsData(G5Table)?.let{
-        FileGenerator().createFileByNameAndText(props.getProperty("integrator.entity"),ExtractSdlData.extractData(App().entity).first+"Workflow.java", generateWorkflow(it, ExtractSdlData.extractData(App().entity).first.toString(), G5Table, WorkflowTemplate().templateString, ExtractSdlData.extractData(App().entity).second))
+    TbsDataExtractor(App.props).extractTbsData(G5Table)?.let{
+        generateWorkflow(it, ExtractSdlData(App.props).extractData(app.entity).first.toString(), G5Table, WorkflowTemplate().templateString, ExtractSdlData(App.props).extractData(app.entity).second)
     };
 
-    FileGenerator().createFileByNameAndText(props.getProperty("integrator.entity"),ExtractSdlData.extractData(App().entity).first+"Dto.java", generateDto(ExtractSdlData.extractData(App().entity), DtoTemplate().templateString))
+    FileGenerator().createFileByNameAndText(props.getProperty("integrator.entity"), ExtractSdlData(App.props).extractData(app.entity).first+"Dto.java", generateDto(ExtractSdlData(App.props).extractData(App().entity), DtoTemplate().templateString))
 
 }
 
