@@ -16,7 +16,9 @@ import java.nio.file.Paths
 import java.util.*
 
 class App {
-    val props = Properties()
+    companion object {
+        val props = Properties()
+    }
 
     val entity: String
         get() {
@@ -37,24 +39,24 @@ fun main(args: Array<String>) {
     val app = App()
 
     if (args.isNotEmpty()) {
-        app.props.setProperty("integrator.entity", args[0])
+        App.props.setProperty("integrator.entity", args[0])
     }
 
     if (File("main.sdl").exists()) {
-        app.props.setProperty("integrator.backend.location", Paths.get("").toAbsolutePath().toString())
+        App.props.setProperty("integrator.backend.location", Paths.get("").toAbsolutePath().toString())
     }
 
-    ExtractSdlData(app.props).extractData(app.entity).second.forEach {
+    ExtractSdlData(App.props).extractData(app.entity).second.forEach {
         fields -> println(fields)
     }
-    println(generateDto(ExtractSdlData(app.props).extractData(app.entity), DtoTemplate().templateString));
+    println(generateDto(ExtractSdlData(App.props).extractData(app.entity), DtoTemplate().templateString));
 
     var G5Table = "R034CON";
-    TbsDataExtractor(app.props).extractTbsData(G5Table)?.let{
-        generateWorkflow(it, ExtractSdlData(app.props).extractData(app.entity).first.toString(), G5Table, WorkflowTemplate().templateString, ExtractSdlData(app.props).extractData(app.entity).second)
+    TbsDataExtractor(App.props).extractTbsData(G5Table)?.let{
+        generateWorkflow(it, ExtractSdlData(App.props).extractData(app.entity).first.toString(), G5Table, WorkflowTemplate().templateString, ExtractSdlData(App.props).extractData(app.entity).second)
     };
 
-    FileGenerator().createFileByNameAndText(ExtractSdlData(app.props).extractData(app.entity).first+"Dto.java", generateDto(ExtractSdlData(app.props).extractData(App().entity), DtoTemplate().templateString))
+    FileGenerator().createFileByNameAndText(ExtractSdlData(App.props).extractData(app.entity).first+"Dto.java", generateDto(ExtractSdlData(App.props).extractData(App().entity), DtoTemplate().templateString))
 
 }
 
