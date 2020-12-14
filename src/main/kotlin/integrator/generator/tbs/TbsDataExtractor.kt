@@ -1,5 +1,6 @@
 package integrator.generator.tbs
 
+import integrator.generator.App
 import java.io.BufferedReader
 import java.io.InputStream
 import java.util.*
@@ -17,7 +18,9 @@ class TbsDataExtractor(private val props: Properties) {
         var foreignKeys: Array<G5ForeignKey>?
     )
 
-    fun extractTbsData(tableName: String): G5TableDefinition? {
+    fun extractTbsData(): G5TableDefinition? {
+        val tableName: String = App.props.getProperty("integrator.g5.table")
+
         val g5FieldsInputStream = downloadTbsFile(username, password, tableName)
 
         if (g5FieldsInputStream != null) {

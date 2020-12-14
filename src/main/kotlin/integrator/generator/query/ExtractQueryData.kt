@@ -1,27 +1,23 @@
-package integrator.generator.sdl;
+package integrator.generator.query;
 
 import integrator.generator.App
-import integrator.generator.dto.Field
 import integrator.generator.dto.FieldQuery
-import integrator.generator.dto.ValidationType
 import java.io.File
-import java.io.FileInputStream
-import java.util.*
-import kotlin.collections.ArrayList
 
 object ExtractQueryData {
     fun extractDataQuery(entityName: String): ArrayList<FieldQuery> {
-        val props = Properties()
-        props.load(FileInputStream(App().getResouce()))
-        val query = File(props.getProperty("integrator.location")).resolve("src/hcm-integration/queries/g5-$entityName-query.sql").bufferedReader().use { it.readText() }
+        val props = App.props
+        val entityNameKebabCase = "(?<=[a-zA-Z])[A-Z]".toRegex().replace(entityName){
+            "-${it.value}"
+        }.toLowerCase()
+        val query = File(props.getProperty("integrator.location")).resolve("src/hcm-integration/queries/g5-$entityNameKebabCase-query.sql").bufferedReader().use { it.readText() }
         val queryFields = getFieldsOfQuery(query);
 
         return queryFields;
     }
 
     fun extractDataSyncQuery(entityName: String): ArrayList<FieldQuery> {
-        val props = Properties()
-        props.load(FileInputStream(App().getResouce()))
+        val props = App.props
         val syncQuery = File(props.getProperty("integrator.location")).resolve("src/hcm-integration/queries/g5-sync-$entityName-query.sql").bufferedReader().use { it.readText() }
         val syncQueryFields = getFieldsOfQuery(syncQuery);
 

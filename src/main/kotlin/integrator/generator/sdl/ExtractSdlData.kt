@@ -72,7 +72,7 @@ class ExtractSdlData(val props: Properties) {
     }
 
     fun getServiceName(): String {
-        val sdl = File(props.getProperty("integrator.backend.location") + "main.sdl").bufferedReader()
+        val sdl = File(props.getProperty("integrator.backend.location")).resolve("main.sdl").bufferedReader()
         val sdlString = sdl.use { it.readText() }
         val regex = "(?<=service\\s).*(?=\\s\\()"
         return regex.toRegex().find(sdlString)?.value ?: "";

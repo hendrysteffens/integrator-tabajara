@@ -3,16 +3,18 @@ package integrator.generator.generator
 import integrator.generator.App
 import integrator.generator.dto.Field
 import integrator.generator.integrationlegacy.IntegrationLegacyExtractor
-import integrator.generator.sdl.ExtractQueryData
+import integrator.generator.query.ExtractQueryData
 import integrator.generator.sdl.ExtractSdlData
 import integrator.generator.tbs.TbsDataExtractor
 import java.util.stream.Collectors
 
 const val SPACE_PRIMARY_KEY: String = "                "
     const val STRING_BUILD: String = ".{{#fieldDto}}(payload.getAsString({{#fieldPayload}})) //"
-fun generateWorkflow(extractData: TbsDataExtractor.G5TableDefinition, entityName: String, g5Table: String, templateString: String, fields: List<Field>): String {
+fun generateWorkflow(extractData: TbsDataExtractor.G5TableDefinition, entityName: String, templateString: String, fields: List<Field>): String {
     val queryData = ExtractQueryData.extractDataQuery(getEntityName(entityName, EntityNameType.TRACE))
     val syncQueryData = ExtractQueryData.extractDataSyncQuery(getEntityName(entityName, EntityNameType.TRACE))
+
+    val g5Table = App.props.getProperty("integrator.g5.table")
 
     var workflow  = templateString.replace("{{#EntityTrace}}", getEntityName(entityName, EntityNameType.TRACE))
     var translatedEntityName = ""
@@ -20,7 +22,7 @@ fun generateWorkflow(extractData: TbsDataExtractor.G5TableDefinition, entityName
     workflow  = workflow.replace("{{#EntityUnderline}}", getEntityName(entityName, EntityNameType.UNDERLINE_LOWER))
     workflow  = workflow.replace("{{#CollectionName}}", getEntityName(entityName, EntityNameType.UNDERLINE_UPPER))
     workflow  = workflow.replace("{{#EntityCamelCase}}", getEntityName(entityName, EntityNameType.CAMEL_CASE))
-    workflow  = workflow.replace("{{#BodyBuild}}",  getBuild(fields, ExtractSdlData.getServiceName(),entityName))
+    workflow  = workflow.replace("{{#BodyBuild}}",  getBuild(fields, ExtractSdlData(App.props).getServiceName(),entityName))
     workflow  = workflow.replace("{{#BodyGetPrimaryKey}}", getPrimaryKeys(extractData))
     workflow  = workflow.replace("{{#ServiceName}}", ExtractSdlData(App.props).getServiceName().toUpperCase())
     workflow  = workflow.replace("{{#BodyMonitoredFields}}", getMonitoredFields(extractData))
@@ -40,9 +42,8 @@ fun getBuild(fields: List<Field>, serviceName : String, entityName: String): Str
 }
 
 fun getFieldDto(mapG5G7Fields : List<Pair<String?, String?>>, g7Field: String) : String {
-    return mapG5G7Fields.stream().filter{it.second.equals(g7Field)}.findFirst().get().first.orEmpty();
+    return mapG5G7Fields.stream().filter{it.second == g7Field}.findFirst().orElse(null)?.first.orEmpty()
 }
-
 
 fun getEntityName(name: String, type: EntityNameType): String {
     var entityName = ""

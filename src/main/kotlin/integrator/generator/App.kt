@@ -5,12 +5,11 @@ package integrator.generator
 
 import integrator.generator.generator.generateDto
 import integrator.generator.generator.generateWorkflow
-import integrator.generator.integrationlegacy.IntegrationLegacyExtractor
 import integrator.generator.sdl.ExtractSdlData
 import integrator.generator.tbs.TbsDataExtractor
 import integrator.generator.template.DtoTemplate
 import integrator.generator.template.WorkflowTemplate
-import integrator.generator.util.*
+import integrator.generator.util.FileGenerator
 import java.io.File
 import java.io.FileInputStream
 import java.nio.file.Paths
@@ -18,28 +17,26 @@ import java.util.*
 
 class App {
     companion object {
-        val props = Properties()
-    }
+        private var loaded = false
+        private val _props = Properties()
+        val props: Properties
+            get() {
+                if (!loaded) {
+                    _props.load(FileInputStream(this.javaClass.classLoader.getResource("generator.properties").file))
+                    loaded = true
+                }
+                return _props
+            }
 
-    val entity: String
-        get() {
-            return ExtractSdlData(props).getSdlEntityText();
-        }
-
-    fun getResouce() :String{
-        return this.javaClass.classLoader.getResource("generator.properties").file;
-    }
-
-    init {
-        props.load(FileInputStream(this.getResouce()))
+        val entity: String
+            get() {
+                return ExtractSdlData(props).getSdlEntityText();
+            }
     }
 }
 
 fun main(args: Array<String>) {
 
-    val props = Properties()
-    props.load(FileInputStream(App().getResouce()))
-    val app = App()
     if (args.isNotEmpty()) {
         App.props.setProperty("integrator.entity", args[0])
     }
@@ -48,17 +45,16 @@ fun main(args: Array<String>) {
         App.props.setProperty("integrator.backend.location", Paths.get("").toAbsolutePath().toString())
     }
 
-    ExtractSdlData(App.props).extractData(app.entity).second.forEach {
+    ExtractSdlData(App.props).extractData(App.entity).second.forEach {
         fields -> println(fields)
     }
-    println(generateDto(ExtractSdlData(App.props).extractData(app.entity), DtoTemplate().templateString));
+    println(generateDto(ExtractSdlData(App.props).extractData(App.entity), DtoTemplate().templateString));
 
-    var G5Table = "R034CON";
-    TbsDataExtractor(App.props).extractTbsData(G5Table)?.let{
-        generateWorkflow(it, ExtractSdlData(App.props).extractData(app.entity).first.toString(), G5Table, WorkflowTemplate().templateString, ExtractSdlData(App.props).extractData(app.entity).second)
+    TbsDataExtractor(App.props).extractTbsData()?.let{
+        generateWorkflow(it, ExtractSdlData(App.props).extractData(App.entity).first.toString(), WorkflowTemplate().templateString, ExtractSdlData(App.props).extractData(App.entity).second)
     };
 
-    FileGenerator().createFileByNameAndText(props.getProperty("integrator.entity"), ExtractSdlData(App.props).extractData(app.entity).first+"Dto.java", generateDto(ExtractSdlData(App.props).extractData(App().entity), DtoTemplate().templateString))
+    FileGenerator().createFileByNameAndText(App.props.getProperty("integrator.entity"), ExtractSdlData(App.props).extractData(App.entity).first+"Dto.java", generateDto(ExtractSdlData(App.props).extractData(App.entity), DtoTemplate().templateString))
 
 }
 
