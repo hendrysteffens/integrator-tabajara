@@ -42,7 +42,8 @@ fun getBuild(fields: List<Field>, serviceName : String, entityName: String): Str
 }
 
 fun getFieldDto(mapG5G7Fields : List<Pair<String?, String?>>, g7Field: String) : String {
-    return mapG5G7Fields.stream().filter{it.second == g7Field}.findFirst().orElse(null)?.first.orEmpty()
+    val mapG5G7FieldsFiltered = mapG5G7Fields.stream().filter{ it.first != null && it.second != null}.collect(Collectors.toList());
+    return mapG5G7FieldsFiltered.stream().filter{ it.second == g7Field}.findFirst().orElse(null)?.first.orEmpty()
 }
 
 fun getEntityName(name: String, type: EntityNameType): String {

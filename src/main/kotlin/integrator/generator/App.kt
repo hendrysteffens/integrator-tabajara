@@ -51,7 +51,7 @@ fun main(args: Array<String>) {
     println(generateDto(ExtractSdlData(App.props).extractData(App.entity), DtoTemplate().templateString));
 
     TbsDataExtractor(App.props).extractTbsData()?.let{
-        generateWorkflow(it, ExtractSdlData(App.props).extractData(App.entity).first.toString(), WorkflowTemplate().templateString, ExtractSdlData(App.props).extractData(App.entity).second)
+        FileGenerator().createFileByNameAndText(App.props.getProperty("integrator.entity"), ExtractSdlData(App.props).extractData(App.entity).first+"Workflow.java",generateWorkflow(it, ExtractSdlData(App.props).extractData(App.entity).first.toString(), WorkflowTemplate().templateString, ExtractSdlData(App.props).extractData(App.entity).second))
     };
 
     FileGenerator().createFileByNameAndText(App.props.getProperty("integrator.entity"), ExtractSdlData(App.props).extractData(App.entity).first+"Dto.java", generateDto(ExtractSdlData(App.props).extractData(App.entity), DtoTemplate().templateString))
