@@ -9,7 +9,7 @@ class IntegrationLegacyExtractor {
 
 
     fun extractData(serviceName: String, entityName: String): List<Pair<String?, String?>> {
-        var  mapperG5G7Fields = ArrayList<Pair<String?, String?>>();
+        val  mapperG5G7Fields = ArrayList<Pair<String?, String?>>();
         val mapper = File(App.props.getProperty("integrator.location")).resolve("src/hcm-integration/src/main/java/com/senior/hcm/integration/mappers/${serviceName}/${entityName.capitalize()}Mapper.java").bufferedReader()
         val mapperString = mapper.use { it.readText() }
         ExtractQueryData.extractDataQuery(entityName)

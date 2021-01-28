@@ -26,7 +26,10 @@ class TbsDataExtractor(private val props: Properties) {
         if (g5FieldsInputStream != null) {
             val tbsContent = filterComments(g5FieldsInputStream)
 
-            val strColumns = tbsContent.substringAfter("TABLE").split("COLUMN")
+            val tableOptions = """.*(?<=TABLE).*OPTIONS(.|\n)*?(?=]).*""".toRegex().find(tbsContent)
+                    ?.value ?: "TABLE"
+
+            val strColumns = tbsContent.substringAfter(tableOptions).split("COLUMN")
 
             val columns = strColumns.drop(1).map { strColumn ->
                 createColumn(strColumn)

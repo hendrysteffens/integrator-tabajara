@@ -32,29 +32,34 @@ class App {
             get() {
                 return ExtractSdlData(props).getSdlEntityText();
             }
+
+        fun run(args: Array<String>) {
+
+            if (args.isNotEmpty()) {
+                props.setProperty("integrator.entity", args[0])
+            }
+
+            if (File("main.sdl").exists()) {
+                props.setProperty("integrator.backend.location", Paths.get("").toAbsolutePath().toString())
+            }
+
+            val extractedData = ExtractSdlData(props).extractData(entity)
+            extractedData.second.forEach {
+                fields -> println(fields)
+            }
+            println(generateDto(extractedData, DtoTemplate().templateString));
+
+            TbsDataExtractor(props).extractTbsData()?.let{
+                FileGenerator().createFileByNameAndText(props.getProperty("integrator.entity"), extractedData.first+"Workflow.java",generateWorkflow(it, extractedData.first.toString(), WorkflowTemplate().templateString, extractedData.second))
+            };
+
+            FileGenerator().createFileByNameAndText(props.getProperty("integrator.entity"), extractedData.first+"Dto.java", generateDto(extractedData, DtoTemplate().templateString))
+
+        }
     }
 }
 
 fun main(args: Array<String>) {
-
-    if (args.isNotEmpty()) {
-        App.props.setProperty("integrator.entity", args[0])
-    }
-
-    if (File("main.sdl").exists()) {
-        App.props.setProperty("integrator.backend.location", Paths.get("").toAbsolutePath().toString())
-    }
-
-    ExtractSdlData(App.props).extractData(App.entity).second.forEach {
-        fields -> println(fields)
-    }
-    println(generateDto(ExtractSdlData(App.props).extractData(App.entity), DtoTemplate().templateString));
-
-    TbsDataExtractor(App.props).extractTbsData()?.let{
-        FileGenerator().createFileByNameAndText(App.props.getProperty("integrator.entity"), ExtractSdlData(App.props).extractData(App.entity).first+"Workflow.java",generateWorkflow(it, ExtractSdlData(App.props).extractData(App.entity).first.toString(), WorkflowTemplate().templateString, ExtractSdlData(App.props).extractData(App.entity).second))
-    };
-
-    FileGenerator().createFileByNameAndText(App.props.getProperty("integrator.entity"), ExtractSdlData(App.props).extractData(App.entity).first+"Dto.java", generateDto(ExtractSdlData(App.props).extractData(App.entity), DtoTemplate().templateString))
-
+    App.run(args)
 }
 
