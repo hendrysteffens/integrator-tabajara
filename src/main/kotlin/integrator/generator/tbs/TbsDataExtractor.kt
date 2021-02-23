@@ -120,22 +120,22 @@ class TbsDataExtractor(private val props: Properties) {
             }
         }
 
-        if (type == "DOMAIN" && level == "DEEP") {
-            val tableName = headerSplit[3].substringBefore("_")
-            val content = downloadTbsFile(username, password, tableName)
-            if (content != null) {
-                val filtered = filterComments(content)
-                val regex = """.*(?<=DOMAIN ${headerSplit[3]})(.|\n)*?(?=]).*"""
-                    .toRegex()
-                return getColumnType(regex.find(filtered)?.value
-                    ?: throw Exception("Não foi possível achar o tipo do campo ${headerSplit[1]} da tabela $tableName"), "FIRST")
-            } else {
-                throw Exception(
-                    """Erro ao ler conteúdo da linha ${lines[0]}
-    Conteúdo da tabela ${tableName} retornou vazio"""
-                )
-            }
-        }
+//        if (type == "DOMAIN" && level == "DEEP") {
+//            val tableName = headerSplit[3].substringBefore("_")
+//            val content = downloadTbsFile(username, password, tableName)
+//            if (content != null) {
+//                val filtered = filterComments(content)
+//                val regex = """.*(?<=DOMAIN ${headerSplit[3]})(.|\n)*?(?=]).*"""
+//                    .toRegex()
+//                return getColumnType(regex.find(filtered)?.value
+//                    ?: throw Exception("Não foi possível achar o tipo do campo ${headerSplit[1]} da tabela $tableName"), "FIRST")
+//            } else {
+//                throw Exception(
+//                    """Erro ao ler conteúdo da linha ${lines[0]}
+//    Conteúdo da tabela ${tableName} retornou vazio"""
+//                )
+//            }
+//        }
         return type
     }
 

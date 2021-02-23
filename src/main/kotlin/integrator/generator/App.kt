@@ -22,13 +22,13 @@ class App {
         val props: Properties
             get() {
                 if (!loaded) {
-                    _props.load(FileInputStream(this.javaClass.classLoader.getResource("generator.properties").file))
+                    _props.load(javaClass.getResourceAsStream("/generator.properties"))
                     loaded = true
                 }
                 return _props
             }
 
-        val entity: String
+        private val entity: String
             get() {
                 return ExtractSdlData(props).getSdlEntityText();
             }

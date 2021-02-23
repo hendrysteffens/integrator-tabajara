@@ -67,8 +67,9 @@ class ExtractSdlData(val props: Properties) {
     fun getSdlEntityText(): String {
         val sdl = File(props.getProperty("integrator.backend.location")).resolve("main.sdl").bufferedReader()
         val sdlString = sdl.use { it.readText() }
-        val regex = ".*\\n.*\\b(?<=entity " + props.getProperty("integrator.entity") + ")(.|\\n)*?(?=}).*"
-        return regex.toRegex().find(sdlString)?.value ?: "";
+        val regex = ".*\\n.*\\b(?<=entity " + props.getProperty("integrator.entity") + ")"
+        val found = regex.toRegex().find(sdlString)?.range?.first
+        return found?.let { sdlString.substring(it).substringBefore("}") }?: ""
     }
 
     fun getServiceName(): String {
