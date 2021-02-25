@@ -5,23 +5,36 @@ import integrator.generator.dto.FieldQuery
 import java.io.File
 
 object ExtractQueryData {
-    fun extractDataQuery(entityName: String): ArrayList<FieldQuery> {
+    fun extractDataQuery(entityName: String): List<FieldQuery> {
         val props = App.props
         val entityNameKebabCase = "(?<=[a-zA-Z])[A-Z]".toRegex().replace(entityName){
             "-${it.value}"
         }.toLowerCase()
-        val query = File(props.getProperty("integrator.location")).resolve("src/hcm-integration/queries/g5-$entityNameKebabCase-query.sql").bufferedReader().use { it.readText() }
-        val queryFields = getFieldsOfQuery(query);
+        val queryFile = File(props.getProperty("integrator.location"))
+            .resolve("src/hcm-integration/queries/g5-$entityNameKebabCase-query.sql")
 
-        return queryFields;
+        if (queryFile.exists()) {
+            val query = queryFile
+                .bufferedReader().use { it.readText() }
+
+            val queryFields = getFieldsOfQuery(query);
+
+            return queryFields;
+        }
+        return emptyList()
     }
 
-    fun extractDataSyncQuery(entityName: String): ArrayList<FieldQuery> {
+    fun extractDataSyncQuery(entityName: String): List<FieldQuery> {
         val props = App.props
-        val syncQuery = File(props.getProperty("integrator.location")).resolve("src/hcm-integration/queries/g5-sync-$entityName-query.sql").bufferedReader().use { it.readText() }
-        val syncQueryFields = getFieldsOfQuery(syncQuery);
+        val syncQueryFile = File(props.getProperty("integrator.location"))
+            .resolve("src/hcm-integration/queries/g5-sync-$entityName-query.sql")
+        if (syncQueryFile.exists()) {
+            val syncQuery = syncQueryFile.bufferedReader().use { it.readText() }
+            val syncQueryFields = getFieldsOfQuery(syncQuery);
 
-        return syncQueryFields;
+            return syncQueryFields
+        }
+        return emptyList()
     }
 
 

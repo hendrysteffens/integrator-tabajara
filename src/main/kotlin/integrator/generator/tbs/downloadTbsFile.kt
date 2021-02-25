@@ -19,14 +19,9 @@ fun downloadTbsFile(user: String, password: String, tableName: String, isEnum: B
         "POST"
     ).access_token
 
-    try {
-        return getRestApiResponse(
+    return getRestApiResponse(
             "https://git.senior.com.br/api/v4/projects/74/repository/files/br.com.senior.rh.tbs%2Fsrc%2Fbr%2Fcom%2Fsenior%2Frh%2F${if (isEnum) "enums" else "tables"}%2F${tableName}.rdbmf/raw?ref=master",
             "GET",
             token
         )
-    } catch (e: FileNotFoundException) {
-        e.printStackTrace()
-        return null
-    }
 }

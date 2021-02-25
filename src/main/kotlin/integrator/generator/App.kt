@@ -11,7 +11,6 @@ import integrator.generator.template.DtoTemplate
 import integrator.generator.template.WorkflowTemplate
 import integrator.generator.util.FileGenerator
 import java.io.File
-import java.io.FileInputStream
 import java.nio.file.Paths
 import java.util.*
 
@@ -50,8 +49,12 @@ class App {
             println(generateDto(extractedData, DtoTemplate().templateString));
 
             TbsDataExtractor(props).extractTbsData()?.let{
-                FileGenerator().createFileByNameAndText(props.getProperty("integrator.entity"), extractedData.first+"Workflow.java",generateWorkflow(it, extractedData.first.toString(), WorkflowTemplate().templateString, extractedData.second))
-            };
+                FileGenerator().createFileByNameAndText(
+                    props.getProperty("integrator.entity"),
+                    extractedData.first+"Workflow.java",
+                    generateWorkflow(it, extractedData.first.toString(), WorkflowTemplate().templateString, extractedData.second)
+                )
+            }
 
             FileGenerator().createFileByNameAndText(props.getProperty("integrator.entity"), extractedData.first+"Dto.java", generateDto(extractedData, DtoTemplate().templateString))
 

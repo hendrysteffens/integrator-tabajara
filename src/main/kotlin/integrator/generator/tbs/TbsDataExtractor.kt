@@ -15,7 +15,7 @@ class TbsDataExtractor(private val props: Properties) {
     class G5TableDefinition(
         val fields: Map<String, G5Field>,
         val primaryKey: Array<String>,
-        var foreignKeys: Array<G5ForeignKey>?
+        val foreignKeys: Array<G5ForeignKey>?
     )
 
     fun extractTbsData(): G5TableDefinition? {
@@ -49,7 +49,7 @@ class TbsDataExtractor(private val props: Properties) {
 
         val splitConstraints = constraints.split(",\t")
 
-        val strPrimaryKey = splitConstraints.first().substringBeforeLast("),").substringAfterLast("(")
+        val strPrimaryKey = splitConstraints.first().substringBefore(")").substringAfter("(")
 
         val primaryKey = strPrimaryKey.split(",").toTypedArray()
 

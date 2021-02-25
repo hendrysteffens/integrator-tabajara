@@ -37,12 +37,12 @@ fun getBuild(fields: List<Field>, serviceName : String, entityName: String): Str
             .stream()
             .filter{!(it.name.equals("id") || it.name.equals("externalId")|| it.name.equals("isIntegration"))}
             .map{ STRING_BUILD.replace("{{#fieldDto}}", getEntityName(it.name, EntityNameType.UNDERLINE_LOWER))
-                    .replace("{{#fieldPayload}}", "\"${getFieldDto(mapG5G7Fields, it.name)}\"") }
+                    .replace("{{#fieldPayload}}", "\"${getFieldDto(mapG5G7Fields, it.snakeCaseName)}\"") }
             .collect(Collectors.joining("\n"))
 }
 
 fun getFieldDto(mapG5G7Fields : List<Pair<String?, String?>>, g7Field: String) : String {
-    val mapG5G7FieldsFiltered = mapG5G7Fields.stream().filter{ it.first != null && it.second != null}.collect(Collectors.toList());
+    val mapG5G7FieldsFiltered = mapG5G7Fields.stream().filter{ it.first != null && it.second != null}.collect(Collectors.toList())
     return mapG5G7FieldsFiltered.stream().filter{ it.second == g7Field}.findFirst().orElse(null)?.first.orEmpty()
 }
 

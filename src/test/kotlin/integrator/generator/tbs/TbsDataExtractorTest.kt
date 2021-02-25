@@ -11,11 +11,9 @@ class TbsDataExtractorTest {
 
     @Test
     fun extractTbsData() {
-        val props = Properties()
-        props.load(FileInputStream(App().getResouce()))
+        val props = App.props
 
-        val g5table = "R044BAS"
-        val result = TbsDataExtractor(props).extractTbsData(g5table)
+        val result = TbsDataExtractor(props).extractTbsData()
 
         assertNotNull(result)
     }

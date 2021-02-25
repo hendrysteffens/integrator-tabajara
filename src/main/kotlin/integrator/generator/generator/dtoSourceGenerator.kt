@@ -17,21 +17,21 @@ fun generateDto(extractData: Pair<String?, List<Field>>, templateString: String)
         field.validations?.forEach {
             when (it.key) {
                 ValidationType.REQUIRED -> {
-                    body += getValidationStringWithField(ValidationTemplate.NOT_EMPTY.value, field.name)
-                    body += getValidationStringWithField(ValidationTemplate.NOT_NULL.value, field.name)
+                    body += getValidationStringWithField(ValidationTemplate.NOT_EMPTY.value, field.snakeCaseName)
+                    body += getValidationStringWithField(ValidationTemplate.NOT_NULL.value, field.snakeCaseName)
                     importString += getImportValidation(ValidationTemplate.NOT_NULL)
                     importString += getImportValidation(ValidationTemplate.NOT_EMPTY)
                 }
                 ValidationType.MAX -> {
-                    body += getValidationStringWithField(ValidationTemplate.MAX.value, field.name)
+                    body += getValidationStringWithField(ValidationTemplate.MAX.value, field.snakeCaseName)
                     importString += getImportValidation(ValidationTemplate.MAX)
                 }
                 ValidationType.MIN -> {
-                    body += getValidationStringWithField(ValidationTemplate.MIN.value, field.name)
+                    body += getValidationStringWithField(ValidationTemplate.MIN.value, field.snakeCaseName)
                     importString += getImportValidation(ValidationTemplate.MIN)
                 }
                 ValidationType.DATE -> {
-                    body += getValidationStringWithField(ValidationTemplate.LOCAL_DATE_RAGE.value, field.name)
+                    body += getValidationStringWithField(ValidationTemplate.LOCAL_DATE_RAGE.value, field.snakeCaseName)
                     importString += getImportValidation(ValidationTemplate.LOCAL_DATE_RAGE)
                 }
                 else -> "Invalid Type"
@@ -41,7 +41,7 @@ fun generateDto(extractData: Pair<String?, List<Field>>, templateString: String)
             field.type = "String"
         }
         val type = convertInitialLetter(field.type)
-        body += SPACE_TAB + "private " + type + " " + field.name + " ;\n\n"
+        body += SPACE_TAB + "private " + type + " " + field.snakeCaseName + " ;\n\n"
     }
 
     templateDto = templateDto.replace("/*{{Imports}}*/", importString)
