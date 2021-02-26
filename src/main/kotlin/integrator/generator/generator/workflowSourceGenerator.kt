@@ -32,7 +32,8 @@ fun generateWorkflow(extractData: TbsDataExtractor.G5TableDefinition, entityName
 }
 
 fun getBuild(fields: List<Field>, serviceName : String, entityName: String): String {
-    val mapG5G7Fields = IntegrationLegacyExtractor().extractData(serviceName, entityName);
+    val mapG5G7Fields = IntegrationLegacyExtractor().extractData(serviceName, entityName)
+
     return fields
             .stream()
             .filter{!(it.name.equals("id") || it.name.equals("externalId")|| it.name.equals("isIntegration"))}

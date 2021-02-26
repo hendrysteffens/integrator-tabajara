@@ -10,14 +10,14 @@ import kotlin.collections.ArrayList
 
 class ExtractSdlData(val props: Properties) {
     fun extractData(entityText: String): Pair<String?, List<Field>> {
-        var entitySplitted = entityText.split("\n")
+        val entitySplitted = entityText.split("\n")
         val entityName = "(?<=entity\\s).*(?=\\s\\{)".toRegex().find(entitySplitted.get(1))?.value
-        var fields = ArrayList<Field>();
+        val fields = ArrayList<Field>();
         entitySplitted
             .filterNot { s -> s.trim().startsWith("\"") || s.trim().startsWith("}") || s.contains("entity") }
             .forEach {
-                val fielLine = it.split(":");
-                if (fielLine.size === 2)
+                val fielLine = it.split(":")
+                if (fielLine.size == 2)
                     fields.add(processFieldType(fielLine.get(0).trim(), fielLine.get(1)))
             }
 
@@ -29,7 +29,7 @@ class ExtractSdlData(val props: Properties) {
         if (fieldType.contains("string")) {
             return processFieldStringType(name, fieldType);
         }
-        var isRequired = verifyRequiredField(fieldType)
+        val isRequired = verifyRequiredField(fieldType)
         if (!fieldType.contains("string") &&
             !fieldType.contains("double") &&
             !fieldType.contains("date") &&
@@ -46,10 +46,10 @@ class ExtractSdlData(val props: Properties) {
     }
 
     private fun processFieldStringType(name: String, fieldType: String): Field {
-        var match = "(?<=\\(\\s).*(?=\\s\\))".toRegex().find(fieldType)
-        var isRequired = verifyRequiredField(fieldType)
+        val match = "(?<=\\(\\s).*(?=\\s\\))".toRegex().find(fieldType)
+        val isRequired = verifyRequiredField(fieldType)
         if (match?.value != null) {
-            var validations: MutableMap<ValidationType, String?> =
+            val validations: MutableMap<ValidationType, String?> =
                 mutableMapOf(ValidationType.STRING_SIZE to match?.value)
             if (isRequired)
                 validations[ValidationType.REQUIRED] = null
