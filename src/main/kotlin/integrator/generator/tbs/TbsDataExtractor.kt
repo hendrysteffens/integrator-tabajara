@@ -47,17 +47,18 @@ class TbsDataExtractor(private val props: Properties) {
     ): G5TableDefinition {
         val fields = columns.map { it.name to it }.toMap()
 
-        val splitConstraints = constraints.split(",\t")
+        val foreignKeysRegex = """(?=(,)?FOREIGN\sKEY)((.|\n)*?)(?=(LOGICAL|(\s|.|\n)FOREIGN|INDEX))""".toRegex()
 
-        val strPrimaryKey = splitConstraints.first().substringBefore(")").substringAfter("(")
-
+        val primaryKeyRegex = """((.|\n)*?)(?=(LOGICAL|(\s|.|\n)FOREIGN|INDEX))""".toRegex()
+        val strPrimaryKey = primaryKeyRegex.find(constraints)?.value?.substringBefore(")")?.substringAfter("(")?: ""
         val primaryKey = strPrimaryKey.split(",").toTypedArray()
 
-        val foreignKeys = splitConstraints.drop(1)
-            .filter { it.contains("FOREIGN KEY") }
+        val foreignKeys = foreignKeysRegex.findAll(constraints)
+            .toList()
+            .map { it.value }
             .map { G5ForeignKey(
                     it.substringAfter("REFERENCES ").substringBefore(" "),
-                    it.substringBefore("(").substringAfter(")")
+                    it.substringAfter("(").substringBefore(")")
                         .split(",")
                         .toTypedArray()
                 )
@@ -107,7 +108,7 @@ class TbsDataExtractor(private val props: Properties) {
         return G5Field(columnName, type, notNull)
     }
 
-    private fun getColumnType(strColumn: String, level: String = "DEEP"): String {
+    private fun getColumnType(strColumn: String): String {
         val lines = strColumn.split("\n")
         val headerSplit = lines[0].split(" ")
 

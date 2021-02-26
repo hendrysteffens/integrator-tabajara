@@ -66,10 +66,10 @@ fun getPrimaryKeys(extractData: TbsDataExtractor.G5TableDefinition): String {
     extractData.primaryKey.forEach {
         val key = removeSpaceAndSpecialCharacteres(it)
 
-        if (extractData.fields[key]?.type.equals("DATE")) {
-            payloadGetType += "payload.getAsLocalDate(\"" + key + "\"), //\n" + SPACE_PRIMARY_KEY
+        payloadGetType += if (extractData.fields[key]?.type.equals("DATE")) {
+            "payload.getAsLocalDate(\"$key\"), //\n$SPACE_PRIMARY_KEY"
         } else {
-            payloadGetType += "payload.getAsString(\"" + key + "\"), //\n" + SPACE_PRIMARY_KEY
+            "payload.getAsString(\"$key\"), //\n$SPACE_PRIMARY_KEY"
         }
     }
 
